@@ -1,0 +1,59 @@
+{
+  "app": {
+    "title": "Elektricitetssimuleringar",
+    "meta": {
+      "title": "Elektricitetssimuleringar"
+    }
+  },
+  "home": {
+    "eyebrow": "Grundkurs i elektricitet",
+    "description": "En växande samling enkla och presentationsvänliga simuleringar i elektricitet för föreläsningar och självstudier.",
+    "menuTitle": "Moduler",
+    "languageLabel": "Språk",
+    "logoAlt": "Lunds universitets logotyp"
+  },
+  "modules": {
+    "electrostatics": {
+      "title": "Elektrostatik",
+      "description": "Placera positiva och negativa punktladdningar på ytan för att bygga de första elektrostatiska situationerna.",
+      "controlsTitle": "Laddningskontroller",
+      "instructions": "Välj laddningstyp och klicka sedan på ytan för att placera den. Om du klickar på en befintlig laddning läggs +1 eller -1 till beroende på vald knapp, och genom att dra kan du flytta den.",
+      "positiveCharge": "Placera + laddning",
+      "negativeCharge": "Placera - laddning",
+      "resetCharges": "Rensa laddningar",
+      "presetsTitle": "Standardkonfigurationer",
+      "presetPlateCapacitor": "Plattkondensator",
+      "presetDipole": "Dipol",
+      "selectionStatus": "Valt verktyg: {charge}",
+      "emptyState": "Inga laddningar placerade ännu.",
+      "chargeCount": "Laddningar: {count}",
+      "netCharge": "Nettoladdning: {charge}",
+      "boardTitle": "Placeringsyta",
+      "boardHint": "Ytan renderas live på ett 750 x 750-rutnät. Klicka för att placera, klicka igen för att ändra laddning och dra för att flytta.",
+      "canvasLabel": "Yta för att placera laddningar i elektrostatik"
+    },
+    "electrostaticsMaterials": {
+      "title": "Elektrostatiska Material",
+      "description": "En separat sandlåda för ledare, dielektrika och elektrostatik med materialgränser.",
+      "controlsTitle": "Materialkontroller",
+      "instructions": "Välj metall, dielektrikum, + laddning eller - laddning och klicka sedan på ytan för att placera den. Dra bitar eller laddningar för att flytta dem, och använd handtaget nere till höger på en bit för att ändra storlek.",
+      "metal": "Placera metall",
+      "dielectric": "Placera dielektrikum",
+      "positiveCharge": "Placera + laddning",
+      "negativeCharge": "Placera - laddning",
+      "removeObject": "Ta bort objekt",
+      "clearAll": "Rensa alla objekt",
+      "selectionStatus": "Valt verktyg: {material}",
+      "emptyState": "Inga materialbitar placerade ännu.",
+      "materialCount": "Bitar: {count}",
+      "materialBreakdown": "Metall: {metal}  Dielektrikum: {dielectric}  + laddningar: {positive}  - laddningar: {negative}",
+      "solverNote": "Den här sandlådan innehåller nu en första materialmedveten fältlösare. Laddningar driver fältet, dielektriska områden ändrar responsen, metallområden approximeras som flytande ekvipotentiala bitar och ytan renderar både potentiallandskap och fältlinjer.",
+      "boardTitle": "Materialyta",
+      "boardHint": "Klicka för att placera en kvadratisk bit eller punktladdning. Dra för att flytta. Använd handtaget nere till höger på en bit för att ändra storlek. Välj Ta bort objekt och klicka på ett objekt för att ta bort det.",
+      "canvasLabel": "Yta för att placera elektrostatiska material"
+    }
+  },
+  "common": {
+    "backToMenu": "Tillbaka till menyn"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "app": {
+    "title": "Electricity Simulations",
+    "meta": {
+      "title": "Electricity Simulations"
+    }
+  },
+  "home": {
+    "eyebrow": "Freshman electricity course",
+    "description": "A growing collection of simple, presentation-ready electricity simulations for lectures and self-study.",
+    "menuTitle": "Modules",
+    "languageLabel": "Language",
+    "logoAlt": "Lund University logo"
+  },
+  "modules": {
+    "electrostatics": {
+      "title": "Electrostatics",
+      "description": "Place positive and negative point charges on the board to build the first electrostatics scenes.",
+      "controlsTitle": "Charge Controls",
+      "instructions": "Choose a charge type, then click on the board to place it. Clicking an existing charge adds +1 or -1 depending on the selected button, and dragging lets you move it.",
+      "positiveCharge": "Place + charge",
+      "negativeCharge": "Place - charge",
+      "resetCharges": "Clear charges",
+      "presetsTitle": "Standard Configurations",
+      "presetPlateCapacitor": "Plate capacitor",
+      "presetDipole": "Dipole",
+      "selectionStatus": "Selected tool: {charge}",
+      "emptyState": "No charges placed yet.",
+      "chargeCount": "Charges: {count}",
+      "netCharge": "Net charge: {charge}",
+      "boardTitle": "Placement Board",
+      "boardHint": "The board renders live on a 750 x 750 grid. Click to place, click again to add charge, and drag to move.",
+      "canvasLabel": "Electrostatics charge placement board"
+    },
+    "electrostaticsMaterials": {
+      "title": "Electrostatics Materials",
+      "description": "A separate sandbox for conductors, dielectrics, and material-boundary electrostatics.",
+      "controlsTitle": "Material Controls",
+      "instructions": "Choose metal, dielectric, + charge, or - charge, then click on the board to place it. Drag pieces or charges to move them, and use the lower-right handle on a piece to resize it.",
+      "metal": "Place metal",
+      "dielectric": "Place dielectric",
+      "positiveCharge": "Place + charge",
+      "negativeCharge": "Place - charge",
+      "removeObject": "Remove object",
+      "clearAll": "Clear all objects",
+      "selectionStatus": "Selected tool: {material}",
+      "emptyState": "No material pieces placed yet.",
+      "materialCount": "Pieces: {count}",
+      "materialBreakdown": "Metal: {metal}  Dielectric: {dielectric}  + charges: {positive}  - charges: {negative}",
+      "solverNote": "This sandbox now includes a first-pass material-aware field solver. Charges drive the field, dielectric regions change the response, metal regions are approximated as floating equipotential pieces, and the board renders both the potential landscape and field lines.",
+      "boardTitle": "Materials Board",
+      "boardHint": "Click to place a square piece or point charge. Drag to move. Use the bottom-right handle on a piece to resize. Choose Remove object and click an object to delete it.",
+      "canvasLabel": "Electrostatics materials placement board"
+    }
+  },
+  "common": {
+    "backToMenu": "Back to menu"
+  }
+}
