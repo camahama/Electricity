@@ -3,6 +3,7 @@ import { createI18n } from "./i18n/index.js";
 
 const DEFAULT_ROUTE = "home";
 const DEFAULT_LANGUAGE = "en";
+const ASSET_BASE_URL = import.meta.env.BASE_URL;
 
 function getRoute() {
   const hash = window.location.hash.replace(/^#\/?/, "");
@@ -49,7 +50,7 @@ function renderHome({ t, language }) {
 
   const logo = document.createElement("img");
   logo.className = "brand-logo";
-  logo.src = "/images/lunds-universitet-huvudlogotyp-liggande3.png.webp";
+  logo.src = `${ASSET_BASE_URL}images/lunds-universitet-huvudlogotyp-liggande3.png.webp`;
   logo.alt = t("home.logoAlt");
 
   const eyebrow = document.createElement("p");
