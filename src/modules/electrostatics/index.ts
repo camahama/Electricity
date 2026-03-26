@@ -16,6 +16,7 @@ const EQUIPOTENTIAL_COLOR = [20, 20, 20];
 const electrostaticsState = {
   selectedChargeSign: 1,
   charges: [],
+  probePoint: null,
 };
 const pointerState = {
   pointerId: null,
@@ -110,6 +111,31 @@ function colorForPotential(value, displayCutoff) {
   }
 
   return [...HEATMAP_NEUTRAL];
+}
+
+function computeFieldAtPoint(pointCharges, x, y) {
+  let fieldX = 0;
+  let fieldY = 0;
+
+  for (const pointCharge of pointCharges) {
+    const deltaX = x - pointCharge.x;
+    const deltaY = y - pointCharge.y;
+    const distance = Math.hypot(deltaX, deltaY);
+
+    if (distance < 1) {
+      continue;
+    }
+
+    const contributionScale = (pointCharge.charge * DEFAULT_POTENTIAL_SCALE) / (distance ** 3);
+    fieldX += contributionScale * deltaX;
+    fieldY += contributionScale * deltaY;
+  }
+
+  return {
+    x: fieldX,
+    y: fieldY,
+    magnitude: Math.hypot(fieldX, fieldY),
+  };
 }
 
 function createPlateCapacitorPreset() {
@@ -342,6 +368,52 @@ export function renderElectrostaticsModule({ t }) {
     );
   }
 
+  function drawFieldProbe() {
+    if (!electrostaticsState.probePoint) {
+      return;
+    }
+
+    const { x, y } = electrostaticsState.probePoint;
+    const field = computeFieldAtPoint(electrostaticsState.charges, x, y);
+
+    if (field.magnitude < 1e-6) {
+      return;
+    }
+
+    const arrowLength = clamp(18 + field.magnitude * 162, 18, 320);
+    const directionX = field.x / field.magnitude;
+    const directionY = field.y / field.magnitude;
+    const tipX = x + directionX * arrowLength;
+    const tipY = y + directionY * arrowLength;
+    const wingLength = 10;
+    const wingAngle = Math.PI / 7;
+
+    context.beginPath();
+    context.strokeStyle = "#132238";
+    context.lineWidth = 2.5;
+    context.moveTo(x, y);
+    context.lineTo(tipX, tipY);
+    context.stroke();
+
+    context.beginPath();
+    context.moveTo(tipX, tipY);
+    context.lineTo(
+      tipX - wingLength * (directionX * Math.cos(wingAngle) - directionY * Math.sin(wingAngle)),
+      tipY - wingLength * (directionY * Math.cos(wingAngle) + directionX * Math.sin(wingAngle)),
+    );
+    context.moveTo(tipX, tipY);
+    context.lineTo(
+      tipX - wingLength * (directionX * Math.cos(wingAngle) + directionY * Math.sin(wingAngle)),
+      tipY - wingLength * (directionY * Math.cos(wingAngle) - directionX * Math.sin(wingAngle)),
+    );
+    context.stroke();
+
+    context.beginPath();
+    context.fillStyle = "#132238";
+    context.arc(x, y, 4, 0, Math.PI * 2);
+    context.fill();
+  }
+
   function findChargeAtPoint(x, y) {
     return electrostaticsState.charges.find((charge) => (
       Math.hypot(charge.x - x, charge.y - y) <= getChargeRadius(charge.charge)
@@ -387,6 +459,7 @@ export function renderElectrostaticsModule({ t }) {
   function redrawCanvas() {
     renderLiveField();
     electrostaticsState.charges.forEach(drawCharge);
+    drawFieldProbe();
   }
 
   function placeChargeAt(x, y) {
@@ -482,11 +555,13 @@ export function renderElectrostaticsModule({ t }) {
   });
 
   canvas.addEventListener("pointermove", (event) => {
+    const { x, y } = getCanvasPoint(event);
+    electrostaticsState.probePoint = { x, y };
+
     if (pointerState.pointerId !== event.pointerId || !pointerState.draggedCharge) {
+      redrawCanvas();
       return;
     }
-
-    const { x, y } = getCanvasPoint(event);
     const distance = Math.hypot(x - pointerState.startX, y - pointerState.startY);
 
     if (distance > dragThreshold) {
@@ -536,6 +611,11 @@ export function renderElectrostaticsModule({ t }) {
     }
 
     resetPointerState();
+  });
+
+  canvas.addEventListener("pointerleave", () => {
+    electrostaticsState.probePoint = null;
+    redrawCanvas();
   });
 
   updateSelectionButtons();

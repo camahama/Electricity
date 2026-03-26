@@ -4,7 +4,45 @@ import {
   DEFAULT_GRID_WIDTH,
   DEFAULT_POTENTIAL_CUTOFF,
   DEFAULT_POTENTIAL_SCALE,
+  type PointCharge,
 } from "../physics/potentialGrid.js";
+
+type ArrowOptions = {
+  arrowLength?: number;
+  arrowAngle?: number;
+};
+
+type StreamlineSelectionOptions = {
+  baseCoverageWeight?: number;
+  outerCoverageWeight?: number;
+  spanWeight?: number;
+  lengthWeight?: number;
+};
+
+type FieldLineOverlayFromGridOptions = {
+  lineCount?: number;
+  autoFill?: boolean;
+  seedsPerChargeUnit?: number;
+  stepSize?: number;
+  maxSteps?: number;
+  stopMargin?: number;
+  arrowLength?: number;
+  arrowAngle?: number;
+  netCharge?: number;
+  seedSearchStep?: number;
+  minSeedDistance?: number;
+  maxOverlapRatio?: number;
+  minStreamlineLength?: number;
+  maxSeedAttempts?: number;
+};
+
+type FieldLineOverlayOptions = FieldLineOverlayFromGridOptions & {
+  width?: number;
+  height?: number;
+  cutoff?: number;
+  scale?: number;
+  potentialGrid?: number[][];
+};
 
 function clamp(value, minimum, maximum) {
   return Math.min(Math.max(value, minimum), maximum);
@@ -123,7 +161,7 @@ function findBestArrowIndex(polyline) {
   return bestIndex;
 }
 
-function drawArrowAtMidpoint(grid, polyline, options = {}) {
+function drawArrowAtMidpoint(grid, polyline, options: ArrowOptions = {}) {
   if (polyline.length < 2) {
     return;
   }
@@ -594,7 +632,7 @@ function candidateSpanScore(polyline) {
   return (Math.max(...xs) - Math.min(...xs)) + (Math.max(...ys) - Math.min(...ys));
 }
 
-function selectEvenlySpacedStreamlines(candidates, lineCount, width, height, options = {}) {
+function selectEvenlySpacedStreamlines(candidates, lineCount, width, height, options: StreamlineSelectionOptions = {}) {
   if (lineCount <= 0 || candidates.length === 0) {
     return [];
   }
@@ -1020,7 +1058,7 @@ function buildCandidatePolylines(potentialGrid, seeds, tracingOptions, tracer) {
   return candidates;
 }
 
-export function createFieldLineOverlayFromPotentialGrid(potentialGrid, options = {}) {
+export function createFieldLineOverlayFromPotentialGrid(potentialGrid, options: FieldLineOverlayFromGridOptions = {}) {
   const height = potentialGrid.length;
   const width = potentialGrid[0]?.length ?? 0;
 
@@ -1068,7 +1106,7 @@ export function createFieldLineOverlayFromPotentialGrid(potentialGrid, options =
   return overlay;
 }
 
-export function createFieldLineOverlay(pointCharges, options = {}) {
+export function createFieldLineOverlay(pointCharges: PointCharge[], options: FieldLineOverlayOptions = {}) {
   const {
     width = DEFAULT_GRID_WIDTH,
     height = DEFAULT_GRID_HEIGHT,

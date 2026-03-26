@@ -3,6 +3,19 @@ export const DEFAULT_GRID_HEIGHT = 500;
 export const DEFAULT_POTENTIAL_CUTOFF = 100;
 export const DEFAULT_POTENTIAL_SCALE = 100;
 
+export type PointCharge = {
+  x: number;
+  y: number;
+  charge: number;
+};
+
+type PotentialGridOptions = {
+  width?: number;
+  height?: number;
+  cutoff?: number;
+  scale?: number;
+};
+
 function clamp(value, minimum, maximum) {
   return Math.min(Math.max(value, minimum), maximum);
 }
@@ -29,7 +42,7 @@ function validatePointCharge(pointCharge, index) {
  * nearest integer and clamped to +/- cutoff. Grid points that coincide with a
  * charge position are treated as singularities and clamp immediately.
  */
-export function createPotentialGrid(pointCharges, options = {}) {
+export function createPotentialGrid(pointCharges: PointCharge[], options: PotentialGridOptions = {}) {
   if (!Array.isArray(pointCharges)) {
     throw new TypeError("Point charges must be provided as an array.");
   }

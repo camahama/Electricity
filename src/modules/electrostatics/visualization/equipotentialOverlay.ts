@@ -115,7 +115,7 @@ function drawDashedSegment(grid, start, end, options) {
  * Rasterizes thin dashed equipotential contours using a marching-squares style
  * interpolation of level crossings in each grid cell.
  */
-export function createEquipotentialOverlay(potentialGrid, options = {}) {
+export function createEquipotentialOverlay(potentialGrid, options: EquipotentialOverlayOptions = {}) {
   const height = potentialGrid.length;
   const width = potentialGrid[0]?.length ?? 0;
 
@@ -178,3 +178,9 @@ export function createEquipotentialOverlay(potentialGrid, options = {}) {
 
   return overlay;
 }
+type EquipotentialOverlayOptions = {
+  levels?: number[];
+  dashPeriod?: number;
+  dashLength?: number;
+  thickness?: number;
+};

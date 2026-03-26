@@ -81,7 +81,9 @@ function renderHome({ t, language }) {
   const moduleList = document.createElement("ul");
   moduleList.className = "module-list";
 
-  moduleRegistry.forEach((moduleDefinition) => {
+  moduleRegistry
+    .filter((moduleDefinition) => !moduleDefinition.hiddenFromMenu)
+    .forEach((moduleDefinition) => {
     const item = document.createElement("li");
     const link = document.createElement("a");
     link.href = `#/${moduleDefinition.slug}`;
@@ -89,7 +91,7 @@ function renderHome({ t, language }) {
     link.textContent = t(moduleDefinition.titleKey);
     item.append(link);
     moduleList.append(item);
-  });
+    });
 
   menu.append(moduleList);
   branding.append(logo);
