@@ -3,8 +3,24 @@ const dictionaries = {
   sv: () => import("./locales/sv.json", { with: { type: "json" } }),
 };
 
+function getStoredLanguage() {
+  try {
+    return window.localStorage.getItem("electricity-language");
+  } catch (_error) {
+    return null;
+  }
+}
+
+function setStoredLanguage(language) {
+  try {
+    window.localStorage.setItem("electricity-language", language);
+  } catch (_error) {
+    // Ignore storage write failures in restricted browser contexts.
+  }
+}
+
 function resolveInitialLanguage(defaultLanguage) {
-  const savedLanguage = window.localStorage.getItem("electricity-language");
+  const savedLanguage = getStoredLanguage();
   if (savedLanguage && savedLanguage in dictionaries) {
     return savedLanguage;
   }
@@ -25,7 +41,7 @@ export async function createI18n({ defaultLanguage }) {
       const module = await dictionaries[nextLanguage]();
       i18n.language = nextLanguage;
       i18n.dictionary = module.default;
-      window.localStorage.setItem("electricity-language", nextLanguage);
+      setStoredLanguage(nextLanguage);
     },
     t(key, values = {}) {
       const resolved = key.split(".").reduce((value, part) => value?.[part], i18n.dictionary);
