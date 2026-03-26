@@ -1,4 +1,5 @@
 import {
+  computeElectricFieldAtPoint,
   createPotentialGrid,
   DEFAULT_POTENTIAL_CUTOFF,
   DEFAULT_POTENTIAL_SCALE,
@@ -111,31 +112,6 @@ function colorForPotential(value, displayCutoff) {
   }
 
   return [...HEATMAP_NEUTRAL];
-}
-
-function computeFieldAtPoint(pointCharges, x, y) {
-  let fieldX = 0;
-  let fieldY = 0;
-
-  for (const pointCharge of pointCharges) {
-    const deltaX = x - pointCharge.x;
-    const deltaY = y - pointCharge.y;
-    const distance = Math.hypot(deltaX, deltaY);
-
-    if (distance < 1) {
-      continue;
-    }
-
-    const contributionScale = (pointCharge.charge * DEFAULT_POTENTIAL_SCALE) / (distance ** 3);
-    fieldX += contributionScale * deltaX;
-    fieldY += contributionScale * deltaY;
-  }
-
-  return {
-    x: fieldX,
-    y: fieldY,
-    magnitude: Math.hypot(fieldX, fieldY),
-  };
 }
 
 function createPlateCapacitorPreset() {
@@ -374,7 +350,12 @@ export function renderElectrostaticsModule({ t }) {
     }
 
     const { x, y } = electrostaticsState.probePoint;
-    const field = computeFieldAtPoint(electrostaticsState.charges, x, y);
+    const field = computeElectricFieldAtPoint(
+      electrostaticsState.charges,
+      x,
+      y,
+      { scale: DEFAULT_POTENTIAL_SCALE },
+    );
 
     if (field.magnitude < 1e-6) {
       return;

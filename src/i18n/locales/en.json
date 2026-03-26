@@ -9,6 +9,7 @@
     "eyebrow": "Freshman electricity course",
     "description": "A growing collection of simple, presentation-ready electricity simulations for lectures and self-study.",
     "menuTitle": "Modules",
+    "externalThreePhase": "3-phase simulator",
     "languageLabel": "Language",
     "logoAlt": "Lund University logo"
   },

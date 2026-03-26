@@ -9,6 +9,7 @@
     "eyebrow": "Grundkurs i elektricitet",
     "description": "En växande samling enkla och presentationsvänliga simuleringar i elektricitet för föreläsningar och självstudier.",
     "menuTitle": "Moduler",
+    "externalThreePhase": "3-fassimulator",
     "languageLabel": "Språk",
     "logoAlt": "Lunds universitets logotyp"
   },

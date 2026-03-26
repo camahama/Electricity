@@ -85,14 +85,24 @@ function renderHome({ t, language }) {
   moduleRegistry
     .filter((moduleDefinition) => !moduleDefinition.hiddenFromMenu)
     .forEach((moduleDefinition) => {
-    const item = document.createElement("li");
-    const link = document.createElement("a");
-    link.href = `#/${moduleDefinition.slug}`;
-    link.className = "module-link";
-    link.textContent = t(moduleDefinition.titleKey);
-    item.append(link);
-    moduleList.append(item);
+      const item = document.createElement("li");
+      const link = document.createElement("a");
+      link.href = `#/${moduleDefinition.slug}`;
+      link.className = "module-link";
+      link.textContent = t(moduleDefinition.titleKey);
+      item.append(link);
+      moduleList.append(item);
     });
+
+  const externalItem = document.createElement("li");
+  const externalLink = document.createElement("a");
+  externalLink.href = "https://camahama.github.io/3phase_sim/";
+  externalLink.className = "module-link";
+  externalLink.target = "_blank";
+  externalLink.rel = "noreferrer";
+  externalLink.textContent = t("home.externalThreePhase");
+  externalItem.append(externalLink);
+  moduleList.append(externalItem);
 
   menu.append(moduleList);
   branding.append(logo);

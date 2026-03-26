@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  computeElectricFieldAtPoint,
   createPotentialGrid,
   DEFAULT_POTENTIAL_CUTOFF,
 } from "./potentialGrid.js";
@@ -54,4 +55,16 @@ test("rejects invalid charge magnitudes", () => {
     () => createPotentialGrid([{ x: 2, y: 2, charge: 1.5 }], { width: 5, height: 5 }),
     /non-zero integer charge/,
   );
+});
+
+test("computes the electric field direction away from a positive charge", () => {
+  const field = computeElectricFieldAtPoint(
+    [{ x: 1, y: 1, charge: 1 }],
+    2,
+    1,
+  );
+
+  assert.ok(field.x > 0);
+  assert.equal(field.y, 0);
+  assert.ok(field.magnitude > 0);
 });

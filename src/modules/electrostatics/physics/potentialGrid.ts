@@ -9,6 +9,12 @@ export type PointCharge = {
   charge: number;
 };
 
+export type ElectricFieldVector = {
+  x: number;
+  y: number;
+  magnitude: number;
+};
+
 type PotentialGridOptions = {
   width?: number;
   height?: number;
@@ -100,4 +106,54 @@ export function createPotentialGrid(pointCharges: PointCharge[], options: Potent
   }
 
   return grid;
+}
+
+/**
+ * Computes the electric field vector E = -grad(V) from the point-charge model
+ * used by the potential grid.
+ */
+export function computeElectricFieldAtPoint(
+  pointCharges: PointCharge[],
+  x: number,
+  y: number,
+  options: Pick<PotentialGridOptions, "scale"> = {},
+): ElectricFieldVector {
+  if (!Array.isArray(pointCharges)) {
+    throw new TypeError("Point charges must be provided as an array.");
+  }
+
+  if (!Number.isFinite(x) || !Number.isFinite(y)) {
+    throw new TypeError("Field coordinates must be finite numbers.");
+  }
+
+  const { scale = DEFAULT_POTENTIAL_SCALE } = options;
+
+  if (typeof scale !== "number" || !Number.isFinite(scale) || scale <= 0) {
+    throw new TypeError("Potential scale must be a positive finite number.");
+  }
+
+  pointCharges.forEach(validatePointCharge);
+
+  let fieldX = 0;
+  let fieldY = 0;
+
+  for (const pointCharge of pointCharges) {
+    const deltaX = x - pointCharge.x;
+    const deltaY = y - pointCharge.y;
+    const distance = Math.hypot(deltaX, deltaY);
+
+    if (distance < 1) {
+      continue;
+    }
+
+    const contributionScale = (pointCharge.charge * scale) / (distance ** 3);
+    fieldX += contributionScale * deltaX;
+    fieldY += contributionScale * deltaY;
+  }
+
+  return {
+    x: fieldX,
+    y: fieldY,
+    magnitude: Math.hypot(fieldX, fieldY),
+  };
 }
