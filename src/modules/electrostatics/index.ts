@@ -232,6 +232,9 @@ export function renderElectrostaticsModule({ t }) {
   const board = document.createElement("section");
   board.className = "electrostatics-board";
 
+  const boardHeader = document.createElement("div");
+  boardHeader.className = "electrostatics-board-header";
+
   const boardTitle = document.createElement("h2");
   boardTitle.className = "electrostatics-panel-title";
   boardTitle.textContent = t("modules.electrostatics.boardTitle");
@@ -654,8 +657,9 @@ export function renderElectrostaticsModule({ t }) {
     status,
     summary,
   );
+  boardHeader.append(boardTitle, boardToolbar);
   canvasFrame.append(canvas);
-  board.append(boardTitle, boardToolbar, canvasFrame, boardHint);
+  board.append(boardHeader, canvasFrame, boardHint);
   intro.append(title, description);
   sidebar.append(intro, controls);
   layout.append(sidebar, board);

@@ -210,10 +210,22 @@ button {
   text-transform: uppercase;
 }
 
+.electrostatics-board-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.85rem;
+}
+
+.electrostatics-board-header .electrostatics-panel-title {
+  margin: 0;
+}
+
 .electrostatics-board-toolbar {
   display: flex;
-  justify-content: flex-start;
-  margin: 0 0 0.85rem;
+  justify-content: flex-end;
+  margin: 0;
 }
 
 .toggle-control {
