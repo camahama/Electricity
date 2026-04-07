@@ -151,7 +151,7 @@ button {
 
 .electrostatics-layout {
   display: grid;
-  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  grid-template-columns: minmax(240px, 290px) minmax(0, 1fr);
   gap: 2rem;
   align-items: start;
 }
@@ -161,18 +161,27 @@ button {
   gap: 1.25rem;
   align-self: start;
   min-width: 0;
+  width: 100%;
 }
 
 .module-intro {
-  max-width: 30rem;
+  width: 100%;
+  max-width: 18rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(28, 53, 87, 0.1);
+  border-radius: 20px;
 }
 
 .module-intro .module-title {
   margin-bottom: 0.85rem;
+  font-size: clamp(2rem, 4.2vw, 3.7rem);
+  overflow-wrap: anywhere;
 }
 
 .module-intro .module-description {
   margin: 0;
+  max-width: 24ch;
 }
 
 .electrostatics-controls,
@@ -288,8 +297,9 @@ button {
 .charge-summary {
   margin: 0;
   padding: 1rem;
-  min-height: 9rem;
+  height: 10.5rem;
   white-space: pre-wrap;
+  overflow-y: auto;
   background: #f5f8fc;
   border: 1px solid rgba(28, 53, 87, 0.08);
   border-radius: 16px;
@@ -350,6 +360,14 @@ button {
 @media (max-width: 960px) {
   .electrostatics-layout {
     grid-template-columns: 1fr;
+  }
+
+  .module-intro {
+    max-width: none;
+  }
+
+  .module-intro .module-description {
+    max-width: 58ch;
   }
 
   .electrostatics-canvas-frame {
