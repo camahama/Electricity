@@ -151,7 +151,7 @@ button {
 
 .electrostatics-layout {
   display: grid;
-  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+  grid-template-columns: minmax(250px, 300px) minmax(680px, 1fr);
   gap: 1.5rem;
   align-items: start;
 }
@@ -164,10 +164,21 @@ button {
   padding: 1.25rem;
 }
 
+.electrostatics-board {
+  justify-self: end;
+  align-self: start;
+}
+
 .electrostatics-panel-title {
   margin: 0 0 0.85rem;
   font-family: var(--font-display);
   font-size: 1.2rem;
+}
+
+.electrostatics-board .electrostatics-panel-title {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .electrostatics-subtitle {
@@ -280,7 +291,7 @@ button {
 
 .electrostatics-canvas {
   display: block;
-  width: min(100%, 640px);
+  width: min(100%, 760px);
   height: auto;
   border-radius: 14px;
   background: #fbfcfe;

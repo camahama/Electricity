@@ -29,7 +29,7 @@
       "emptyState": "Inga laddningar placerade ännu.",
       "chargeCount": "Laddningar: {count}",
       "netCharge": "Nettoladdning: {charge}",
-      "boardTitle": "Placeringsyta",
+      "boardTitle": "Potential-landskap",
       "boardHint": "Ytan renderas live på ett 750 x 750-rutnät. Klicka för att placera, klicka igen för att ändra laddning och dra för att flytta.",
       "canvasLabel": "Yta för att placera laddningar i elektrostatik"
     },
