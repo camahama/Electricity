@@ -168,6 +168,12 @@ export function renderElectrostaticsModule({ t }) {
   const layout = document.createElement("div");
   layout.className = "electrostatics-layout";
 
+  const sidebar = document.createElement("div");
+  sidebar.className = "electrostatics-sidebar";
+
+  const intro = document.createElement("div");
+  intro.className = "module-intro";
+
   const controls = document.createElement("aside");
   controls.className = "electrostatics-controls";
 
@@ -617,8 +623,10 @@ export function renderElectrostaticsModule({ t }) {
   );
   canvasFrame.append(canvas);
   board.append(boardTitle, canvasFrame, boardHint);
-  layout.append(controls, board);
-  content.append(backLink, title, description, layout);
+  intro.append(title, description);
+  sidebar.append(intro, controls);
+  layout.append(sidebar, board);
+  content.append(backLink, layout);
   page.append(content);
 
   return page;

@@ -156,6 +156,24 @@ button {
   align-items: start;
 }
 
+.electrostatics-sidebar {
+  display: grid;
+  gap: 1.25rem;
+  align-self: start;
+}
+
+.module-intro {
+  max-width: 30rem;
+}
+
+.module-intro .module-title {
+  margin-bottom: 0.85rem;
+}
+
+.module-intro .module-description {
+  margin: 0;
+}
+
 .electrostatics-controls,
 .electrostatics-board {
   background: rgba(255, 255, 255, 0.76);
