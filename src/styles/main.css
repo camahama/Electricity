@@ -59,7 +59,7 @@ button {
 }
 
 .module-page-wide {
-  width: min(1180px, 100%);
+  width: min(1400px, 100%);
 }
 
 .branding {
@@ -151,8 +151,8 @@ button {
 
 .electrostatics-layout {
   display: grid;
-  grid-template-columns: minmax(250px, 300px) minmax(680px, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  gap: 2rem;
   align-items: start;
 }
 
@@ -160,6 +160,7 @@ button {
   display: grid;
   gap: 1.25rem;
   align-self: start;
+  min-width: 0;
 }
 
 .module-intro {
@@ -183,7 +184,8 @@ button {
 }
 
 .electrostatics-board {
-  justify-self: end;
+  min-width: 0;
+  justify-self: stretch;
   align-self: start;
 }
 
@@ -298,8 +300,7 @@ button {
 }
 
 .electrostatics-canvas-frame {
-  width: fit-content;
-  max-width: 100%;
+  width: 100%;
   padding: 0.9rem;
   background: linear-gradient(180deg, #ffffff 0%, #f2f6fb 100%);
   border: 1px solid rgba(28, 53, 87, 0.12);
@@ -309,7 +310,8 @@ button {
 
 .electrostatics-canvas {
   display: block;
-  width: min(100%, 760px);
+  width: 100%;
+  max-width: 760px;
   height: auto;
   border-radius: 14px;
   background: #fbfcfe;
@@ -352,5 +354,9 @@ button {
 
   .electrostatics-canvas-frame {
     width: 100%;
+  }
+
+  .electrostatics-canvas {
+    max-width: none;
   }
 }
