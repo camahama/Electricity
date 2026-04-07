@@ -18,6 +18,7 @@ const electrostaticsState = {
   selectedChargeSign: 1,
   charges: [],
   probePoint: null,
+  probeEnabled: false,
 };
 const pointerState = {
   pointerId: null,
@@ -234,6 +235,20 @@ export function renderElectrostaticsModule({ t }) {
   const boardTitle = document.createElement("h2");
   boardTitle.className = "electrostatics-panel-title";
   boardTitle.textContent = t("modules.electrostatics.boardTitle");
+
+  const boardToolbar = document.createElement("div");
+  boardToolbar.className = "electrostatics-board-toolbar";
+
+  const probeToggleLabel = document.createElement("label");
+  probeToggleLabel.className = "toggle-control";
+
+  const probeToggle = document.createElement("input");
+  probeToggle.type = "checkbox";
+  probeToggle.checked = electrostaticsState.probeEnabled;
+  probeToggle.setAttribute("aria-label", t("modules.electrostatics.fieldProbeToggle"));
+
+  const probeToggleText = document.createElement("span");
+  probeToggleText.textContent = t("modules.electrostatics.fieldProbeToggle");
 
   const canvasFrame = document.createElement("div");
   canvasFrame.className = "electrostatics-canvas-frame";
@@ -520,6 +535,16 @@ export function renderElectrostaticsModule({ t }) {
     updateSummary();
   });
 
+  probeToggle.addEventListener("change", () => {
+    electrostaticsState.probeEnabled = probeToggle.checked;
+
+    if (!electrostaticsState.probeEnabled) {
+      electrostaticsState.probePoint = null;
+    }
+
+    redrawCanvas();
+  });
+
   plateCapacitorButton.addEventListener("click", () => {
     loadPreset(createPlateCapacitorPreset());
   });
@@ -543,10 +568,16 @@ export function renderElectrostaticsModule({ t }) {
 
   canvas.addEventListener("pointermove", (event) => {
     const { x, y } = getCanvasPoint(event);
-    electrostaticsState.probePoint = { x, y };
+    if (electrostaticsState.probeEnabled) {
+      electrostaticsState.probePoint = { x, y };
+    } else {
+      electrostaticsState.probePoint = null;
+    }
 
     if (pointerState.pointerId !== event.pointerId || !pointerState.draggedCharge) {
-      redrawCanvas();
+      if (electrostaticsState.probeEnabled) {
+        redrawCanvas();
+      }
       return;
     }
     const distance = Math.hypot(x - pointerState.startX, y - pointerState.startY);
@@ -611,6 +642,8 @@ export function renderElectrostaticsModule({ t }) {
 
   selectionGroup.append(positiveButton, negativeButton);
   presetButtons.append(plateCapacitorButton, dipoleButton);
+  probeToggleLabel.append(probeToggle, probeToggleText);
+  boardToolbar.append(probeToggleLabel);
   controls.append(
     controlsTitle,
     controlsText,
@@ -622,7 +655,7 @@ export function renderElectrostaticsModule({ t }) {
     summary,
   );
   canvasFrame.append(canvas);
-  board.append(boardTitle, canvasFrame, boardHint);
+  board.append(boardTitle, boardToolbar, canvasFrame, boardHint);
   intro.append(title, description);
   sidebar.append(intro, controls);
   layout.append(sidebar, board);

@@ -210,6 +210,27 @@ button {
   text-transform: uppercase;
 }
 
+.electrostatics-board-toolbar {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0 0 0.85rem;
+}
+
+.toggle-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--text-secondary);
+  font-size: 0.96rem;
+  font-weight: 600;
+}
+
+.toggle-control input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+}
+
 .electrostatics-subtitle {
   margin: 1.25rem 0 0.75rem;
   font-family: var(--font-display);
