@@ -82,7 +82,7 @@
     },
     "circuitBuilder": {
       "title": "Elektriska kretsar",
-      "description": "Bygg linjära kretsar på en 750 x 750-yta och lös nodpotentialer och komponentströmmar.",
+      "description": "Bygg en krets och beräkna potentialer och strömmar.",
       "componentsTitle": "Komponenter",
       "selectTool": "Välj / flytta",
       "wireTool": "Ledning",
