@@ -126,7 +126,7 @@
       "frequency": "Frequency f",
       "timeScale": "Time",
       "voltageScale": "Voltage",
-      "startTime": "Start time",
+      "startTime": "Start time (1:100)",
       "stopTime": "Stop time (t=0)",
       "expandDiagram": "Expand RLC circuit diagram",
       "impedance": "Impedance",

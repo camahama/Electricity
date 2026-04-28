@@ -126,7 +126,7 @@
       "frequency": "Frekvens f",
       "timeScale": "Tid",
       "voltageScale": "Spänning",
-      "startTime": "Starta tiden",
+      "startTime": "Starta tiden (1:100)",
       "stopTime": "Stoppa tiden (t=0)",
       "expandDiagram": "Förstora RLC-kopplingsschema",
       "impedance": "Impedans",
