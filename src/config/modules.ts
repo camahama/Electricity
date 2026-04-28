@@ -29,11 +29,6 @@ export const moduleRegistry: ModuleDefinition[] = [
     hiddenFromMenu: true,
   },
   {
-    slug: "three-phase",
-    titleKey: "modules.threePhase.title",
-    render: renderThreePhaseModule,
-  },
-  {
     slug: "circuit-builder",
     titleKey: "modules.circuitBuilder.title",
     render: renderCircuitBuilderModule,
@@ -42,5 +37,10 @@ export const moduleRegistry: ModuleDefinition[] = [
     slug: "rlc-circuit",
     titleKey: "modules.rlcCircuit.title",
     render: renderRlcCircuitModule,
+  },
+  {
+    slug: "three-phase",
+    titleKey: "modules.threePhase.title",
+    render: renderThreePhaseModule,
   },
 ];

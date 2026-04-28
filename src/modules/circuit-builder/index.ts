@@ -499,8 +499,8 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
       state.components.push({
         id: nextComponentIdValue("b"),
         type: "idealBattery",
-        positiveNode: rightNode,
-        negativeNode: leftNode,
+        positiveNode: leftNode,
+        negativeNode: rightNode,
         voltageVolts: state.lastBatteryVoltageVolts,
       });
     } else if (state.selectedTool === "realBattery") {
@@ -511,8 +511,8 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
         {
           id: nextComponentIdValue("b"),
           type: "idealBattery",
-          positiveNode: middleNode,
-          negativeNode: realBatteryLeftNode,
+          positiveNode: realBatteryLeftNode,
+          negativeNode: middleNode,
           voltageVolts: state.lastBatteryVoltageVolts,
         },
         {
@@ -1104,7 +1104,7 @@ function renderPotentialProbe(probe: PotentialProbe): SVGElement {
   circle.setAttribute("class", "circuit-builder-potential-probe-dot");
   appendLine(group, node.x, node.y, probeCenter.x, probeCenter.y, "circuit-builder-voltmeter-lead");
   group.append(circle);
-  group.append(label(labelPosition.x, labelPosition.y, potential == null ? "—" : formatVoltage(potential)));
+  group.append(label(labelPosition.x, labelPosition.y, potential == null ? "—" : formatMeasurementVoltage(potential)));
   group.lastElementChild?.setAttribute("class", "circuit-builder-voltage-label");
   group.lastElementChild?.setAttribute("text-anchor", "start");
   return group;
@@ -1124,7 +1124,7 @@ function renderVoltmeter(voltmeter: VoltmeterProbe): SVGElement {
   body.setAttribute("height", "36");
   body.setAttribute("rx", "8");
   body.setAttribute("class", "circuit-builder-voltmeter-body");
-  group.append(body, label(meterCenter.x, meterCenter.y + 6, voltage == null ? "—" : formatVoltage(voltage)));
+  group.append(body, label(meterCenter.x, meterCenter.y + 6, voltage == null ? "—" : formatMeasurementVoltage(voltage)));
   group.lastElementChild?.setAttribute("class", "circuit-builder-voltage-label");
   return group;
 }
@@ -1143,7 +1143,7 @@ function renderOhmmeter(ohmmeter: OhmmeterProbe): SVGElement {
   body.setAttribute("height", "36");
   body.setAttribute("rx", "8");
   body.setAttribute("class", "circuit-builder-ohmmeter-body");
-  group.append(body, label(meterCenter.x, meterCenter.y + 6, resistance == null ? "—" : formatResistance(resistance)));
+  group.append(body, label(meterCenter.x, meterCenter.y + 6, resistance == null ? "—" : formatMeasurementResistance(resistance)));
   group.lastElementChild?.setAttribute("class", "circuit-builder-ohmmeter-label");
   return group;
 }
@@ -1170,7 +1170,7 @@ function renderCurrentProbe(probe: CurrentProbe): SVGElement {
   const currentLabel = label(
     geometry.textPosition.x,
     geometry.textPosition.y,
-    geometry.current == null ? "—" : formatCurrent(Math.abs(geometry.current)),
+    geometry.current == null ? "—" : formatMeasurementCurrent(Math.abs(geometry.current)),
   );
   currentLabel.setAttribute("text-anchor", geometry.textPosition.anchor);
   currentLabel.setAttribute("class", "circuit-builder-current-label");
@@ -1996,18 +1996,38 @@ function clamp(value: number, minimum: number, maximum: number): number {
 }
 
 function formatCurrent(currentAmps: number): string {
+  if (Math.abs(currentAmps) >= 0.9995 && Math.abs(currentAmps) < 10) {
+    return `${currentAmps.toFixed(1)} A`;
+  }
+
   return formatSiUnit(currentAmps, "A");
+}
+
+function formatMeasurementCurrent(currentAmps: number): string {
+  if (Math.abs(currentAmps) >= 0.9995 && Math.abs(currentAmps) < 10) {
+    return `${currentAmps.toFixed(1)} A`;
+  }
+
+  return formatSiUnit(currentAmps, "A", 2);
 }
 
 function formatResistance(resistanceOhms: number): string {
   return formatSiUnit(resistanceOhms, "Ω");
 }
 
+function formatMeasurementResistance(resistanceOhms: number): string {
+  return formatSiUnit(resistanceOhms, "Ω", 2);
+}
+
 function formatVoltage(voltage: number): string {
   return formatSiUnit(voltage, "V");
 }
 
-function formatSiUnit(value: number, unit: string): string {
+function formatMeasurementVoltage(voltage: number): string {
+  return formatSiUnit(voltage, "V", 2);
+}
+
+function formatSiUnit(value: number, unit: string, minimumSignificantDigits = 1): string {
   const magnitude = Math.abs(value);
   if (magnitude === 0) {
     return `0 ${unit}`;
@@ -2026,7 +2046,7 @@ function formatSiUnit(value: number, unit: string): string {
   ];
 
   const prefix = prefixes.find((entry) => magnitude >= entry.multiplier) ?? prefixes[prefixes.length - 1];
-  return `${formatSignificant(value / prefix.multiplier)} ${prefix.symbol}${unit}`;
+  return `${formatSignificant(value / prefix.multiplier, minimumSignificantDigits)} ${prefix.symbol}${unit}`;
 }
 
 function parseSiValue(input: string): number {
@@ -2061,8 +2081,22 @@ function parseSiValue(input: string): number {
   return value * (multipliers[prefix] ?? 1);
 }
 
-function formatSignificant(value: number): string {
-  return Number(value.toPrecision(3)).toString();
+function formatSignificant(value: number, minimumSignificantDigits = 1): string {
+  const rounded = value.toPrecision(3);
+  if (rounded.includes("e")) {
+    return Number(rounded).toString();
+  }
+
+  const [integerPart, decimalPart = ""] = rounded.split(".");
+  const significantIntegerDigits = integerPart.replace("-", "").replace(/^0+/, "").length;
+  const minimumDecimalDigits = Math.max(0, minimumSignificantDigits - significantIntegerDigits);
+  let trimmedDecimal = decimalPart.replace(/0+$/, "");
+
+  while (trimmedDecimal.length < minimumDecimalDigits) {
+    trimmedDecimal += "0";
+  }
+
+  return trimmedDecimal.length > 0 ? `${integerPart}.${trimmedDecimal}` : integerPart;
 }
 
 function element<K extends keyof HTMLElementTagNameMap>(
