@@ -3,6 +3,10 @@ import { solveLinearCircuit, type LinearCircuitComponent } from "./physics/linea
 
 const BOARD_SIZE = 750;
 const SNAP_RADIUS = 18;
+const COMPONENT_HALF_SPAN = 60;
+const REAL_BATTERY_LEFT_SPAN = 95;
+const REAL_BATTERY_RIGHT_SPAN = 95;
+const REAL_BATTERY_MIDDLE_OFFSET = -20;
 const DEFAULT_RESISTANCE_OHMS = 100;
 const DEFAULT_VOLTAGE_VOLTS = 9;
 const REAL_BATTERY_RESISTANCE_OHMS = 1;
@@ -264,6 +268,7 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
         return;
       }
       if (state.selectedTool !== "erase") {
+        event.stopPropagation();
         return;
       }
       event.stopPropagation();
@@ -478,10 +483,9 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
       return;
     }
 
-    const leftNode = getOrCreateNode(point.x - 60, point.y);
-    const rightNode = getOrCreateNode(point.x + 60, point.y);
-
     if (state.selectedTool === "resistor") {
+      const leftNode = getOrCreateNode(point.x - COMPONENT_HALF_SPAN, point.y);
+      const rightNode = getOrCreateNode(point.x + COMPONENT_HALF_SPAN, point.y);
       state.components.push({
         id: nextComponentIdValue("r"),
         type: "resistor",
@@ -490,6 +494,8 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
         resistanceOhms: state.lastResistanceOhms,
       });
     } else if (state.selectedTool === "idealBattery") {
+      const leftNode = getOrCreateNode(point.x - COMPONENT_HALF_SPAN, point.y);
+      const rightNode = getOrCreateNode(point.x + COMPONENT_HALF_SPAN, point.y);
       state.components.push({
         id: nextComponentIdValue("b"),
         type: "idealBattery",
@@ -498,20 +504,22 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
         voltageVolts: state.lastBatteryVoltageVolts,
       });
     } else if (state.selectedTool === "realBattery") {
-      const middleNode = getOrCreateNode(point.x, point.y);
+      const realBatteryLeftNode = getOrCreateNode(point.x - REAL_BATTERY_LEFT_SPAN, point.y);
+      const middleNode = getOrCreateNode(point.x + REAL_BATTERY_MIDDLE_OFFSET, point.y);
+      const realBatteryRightNode = getOrCreateNode(point.x + REAL_BATTERY_RIGHT_SPAN, point.y);
       state.components.push(
         {
           id: nextComponentIdValue("b"),
           type: "idealBattery",
           positiveNode: middleNode,
-          negativeNode: leftNode,
+          negativeNode: realBatteryLeftNode,
           voltageVolts: state.lastBatteryVoltageVolts,
         },
         {
           id: nextComponentIdValue("r"),
           type: "resistor",
           nodeA: middleNode,
-          nodeB: rightNode,
+          nodeB: realBatteryRightNode,
           resistanceOhms: REAL_BATTERY_RESISTANCE_OHMS,
         },
       );
