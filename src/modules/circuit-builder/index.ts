@@ -226,7 +226,7 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
         components: physicsComponents(),
       });
       const output = element("div", "circuit-builder-result-grid");
-      output.append(renderNodeTable(solution.nodePotentials), renderCurrentTable(visibleComponentCurrents(solution.componentCurrents)));
+      output.append(renderCurrentTable(visibleComponentCurrents(solution.componentCurrents)));
       results.append(output);
     } catch (error) {
       results.textContent = error instanceof Error ? error.message : String(error);
@@ -1070,15 +1070,6 @@ function editComponentValue(component: BoardComponent): void {
     component.voltageVolts = parsed;
     state.lastBatteryVoltageVolts = parsed;
   }
-}
-
-function renderNodeTable(potentials: Record<string, number>): HTMLElement {
-  const table = element("div", "circuit-builder-result-section");
-  table.append(element("h3", "circuit-builder-result-title", "Nodes"));
-  for (const node of state.nodes) {
-    table.append(resultRow(node.id, `${(potentials[node.id] ?? 0).toFixed(3)} V`));
-  }
-  return table;
 }
 
 function renderCurrentTable(currents: Array<{ componentId: string; currentAmps: number | null }>): HTMLElement {
