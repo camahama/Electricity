@@ -81,7 +81,7 @@
       "hoverPhasePrefix": "Phase"
     },
     "circuitBuilder": {
-      "title": "Circuit Builder — Resistors, batteries, wires",
+      "title": "Circuit Builder",
       "description": "Build linear circuits on a 750 x 750 board and solve node potentials and component currents.",
       "componentsTitle": "Components",
       "selectTool": "Select / move",

@@ -81,7 +81,7 @@
       "hoverPhasePrefix": "Fas"
     },
     "circuitBuilder": {
-      "title": "Elektiska kretsar — Resistorer, batterier, ledningar",
+      "title": "Elektriska kretsar",
       "description": "Bygg linjära kretsar på en 750 x 750-yta och lös nodpotentialer och komponentströmmar.",
       "componentsTitle": "Komponenter",
       "selectTool": "Välj / flytta",
