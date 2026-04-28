@@ -94,19 +94,24 @@ function renderHome({ t, language }) {
       moduleList.append(item);
     });
 
-  const externalItem = document.createElement("li");
-  const externalLink = document.createElement("a");
-  externalLink.href = "https://camahama.github.io/3phase_sim/";
-  externalLink.className = "module-link";
-  externalLink.target = "_blank";
-  externalLink.rel = "noreferrer";
-  externalLink.textContent = t("home.externalThreePhase");
-  externalItem.append(externalLink);
-  moduleList.append(externalItem);
-
   menu.append(moduleList);
+
+  const credit = document.createElement("p");
+  credit.className = "package-credit";
+  credit.append(`${t("home.creditPrefix")} `);
+  const emailLink = document.createElement("a");
+  emailLink.href = "mailto:martin.magnusson@fysik.lu.se";
+  emailLink.textContent = "martin.magnusson@fysik.lu.se";
+  credit.append(emailLink, `. ${t("home.creditLicensePrefix")} `);
+  const licenseLink = document.createElement("a");
+  licenseLink.href = "https://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1";
+  licenseLink.target = "_blank";
+  licenseLink.rel = "license noopener noreferrer";
+  licenseLink.textContent = t("home.creditLicenseLabel");
+  credit.append(licenseLink);
+
   branding.append(logo);
-  hero.append(branding, eyebrow, title, description, languagePicker, menuTitle, menu);
+  hero.append(branding, eyebrow, title, description, languagePicker, menuTitle, menu, credit);
   page.append(hero);
 
   return page;

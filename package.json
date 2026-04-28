@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "electrostatics:heatmap": "node --import tsx scripts/electrostatics-heatmap.ts",
-    "test": "node --import tsx --test src/modules/electrostatics/physics/potentialGrid.test.ts src/modules/electrostatics/visualization/overlays.test.ts",
+    "test": "node --import tsx --test src/modules/electrostatics/physics/potentialGrid.test.ts src/modules/electrostatics/visualization/overlays.test.ts src/modules/three-phase/physics/index.test.ts src/modules/circuit-builder/physics/linearCircuit.test.ts src/modules/rlc-circuit/physics/seriesRlc.test.ts",
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"

@@ -149,6 +149,495 @@ button {
   font-size: 1.05rem;
 }
 
+.package-credit {
+  margin: 1.75rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.rlc-page {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.rlc-header {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.8fr) minmax(360px, 1fr);
+  gap: 2rem;
+  align-items: end;
+}
+
+.rlc-header .module-title {
+  font-size: clamp(2.4rem, 4vw, 4rem);
+}
+
+.rlc-header .module-description {
+  margin: 0;
+}
+
+.rlc-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 330px) minmax(840px, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.rlc-controls,
+.rlc-stage {
+  border: 1px solid rgba(28, 53, 87, 0.1);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 1.1rem;
+}
+
+.rlc-controls {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.rlc-panel-title {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+}
+
+.rlc-slider {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.rlc-slider-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.rlc-slider-header strong {
+  color: var(--text-primary);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+}
+
+.rlc-slider input {
+  width: 100%;
+}
+
+.rlc-circuit-block {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.rlc-circuit-diagram {
+  width: 100%;
+  padding: 0.45rem;
+  border: 1px solid rgba(19, 34, 56, 0.14);
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: zoom-in;
+}
+
+.rlc-circuit-diagram.expanded {
+  cursor: zoom-out;
+}
+
+.rlc-circuit-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.rlc-circuit-diagram.expanded .rlc-circuit-svg {
+  transform: scale(1.35);
+  transform-origin: center;
+  margin: 1.4rem 0;
+}
+
+.rlc-circuit-line,
+.rlc-circuit-capacitor,
+.rlc-circuit-terminal,
+.rlc-circuit-voltage-mark,
+.rlc-circuit-current {
+  fill: none;
+  stroke: #132238;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.rlc-circuit-voltage-mark {
+  stroke-width: 2.4;
+}
+
+.rlc-circuit-current {
+  fill: #132238;
+  stroke-width: 3;
+}
+
+.rlc-circuit-current.arrowhead {
+  stroke: none;
+}
+
+.rlc-circuit-terminal {
+  fill: #ffffff;
+}
+
+.rlc-circuit-resistor {
+  fill: #ffffff;
+  stroke: #132238;
+  stroke-width: 4;
+}
+
+.rlc-circuit-label {
+  fill: #132238;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.rlc-circuit-equation {
+  color: #132238;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 1rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.rlc-equation-symbol sub {
+  font-size: 70%;
+  font-style: italic;
+}
+
+.rlc-stage {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+}
+
+.rlc-display {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 460px minmax(300px, 360px);
+  gap: 1rem;
+  justify-content: center;
+  align-items: start;
+}
+
+.rlc-scope-box {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.rlc-phasor-box {
+  display: grid;
+  gap: 0.8rem;
+  justify-items: center;
+}
+
+.rlc-scope {
+  width: 460px;
+  height: 460px;
+  border-radius: 18px;
+  background: #111827;
+}
+
+.rlc-phasor {
+  width: min(100%, 360px);
+  height: 460px;
+  border-radius: 18px;
+  background: #111827;
+}
+
+.rlc-time-button {
+  min-width: 9.5rem;
+  padding: 0.65rem 1.05rem;
+  border: 2px solid rgba(19, 34, 56, 0.18);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #132238;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.rlc-scope-screen,
+.rlc-phasor-screen {
+  fill: #030712;
+  stroke: #243244;
+  stroke-width: 2;
+}
+
+.rlc-scope-grid,
+.rlc-phasor-grid {
+  stroke: rgba(148, 163, 184, 0.24);
+  stroke-width: 1;
+}
+
+.rlc-scope-axis {
+  stroke: rgba(226, 232, 240, 0.5);
+  stroke-width: 1.5;
+}
+
+.rlc-phasor-axis {
+  stroke: rgba(226, 232, 240, 0.32);
+  stroke-width: 1.5;
+}
+
+.rlc-wave-source,
+.rlc-wave-resistor,
+.rlc-wave-inductor,
+.rlc-wave-capacitor {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rlc-wave-source {
+  stroke: #60a5fa;
+}
+
+.rlc-wave-resistor {
+  stroke: #f97316;
+}
+
+.rlc-wave-inductor {
+  stroke: #22c55e;
+}
+
+.rlc-wave-capacitor {
+  stroke: #a78bfa;
+}
+
+.rlc-scope-legend-source,
+.rlc-scope-legend-resistor,
+.rlc-scope-legend-inductor,
+.rlc-scope-legend-capacitor {
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.rlc-scope-legend-source {
+  stroke: #60a5fa;
+}
+
+.rlc-scope-legend-resistor {
+  stroke: #f97316;
+}
+
+.rlc-scope-legend-inductor {
+  stroke: #22c55e;
+}
+
+.rlc-scope-legend-capacitor {
+  stroke: #a78bfa;
+}
+
+.rlc-scope-label {
+  fill: #cbd5e1;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.rlc-scope-label.source {
+  fill: #60a5fa;
+}
+
+.rlc-scope-label.resistor {
+  fill: #f97316;
+}
+
+.rlc-scope-label.inductor {
+  fill: #22c55e;
+}
+
+.rlc-scope-label.capacitor {
+  fill: #a78bfa;
+}
+
+
+.rlc-phasor-ur,
+.rlc-phasor-ul,
+.rlc-phasor-uc,
+.rlc-phasor-u {
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.rlc-phasor-ur {
+  stroke: #f97316;
+  fill: #f97316;
+}
+
+.rlc-phasor-ul {
+  stroke: #22c55e;
+  fill: #22c55e;
+}
+
+.rlc-phasor-uc {
+  stroke: #a78bfa;
+  fill: #a78bfa;
+}
+
+.rlc-phasor-u {
+  stroke: #60a5fa;
+  fill: #60a5fa;
+}
+
+.rlc-phasor-ur.label,
+.rlc-phasor-ul.label,
+.rlc-phasor-uc.label,
+.rlc-phasor-u.label {
+  stroke: none;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.rlc-phasor-ur.arrowhead,
+.rlc-phasor-ul.arrowhead,
+.rlc-phasor-uc.arrowhead,
+.rlc-phasor-u.arrowhead {
+  stroke: none;
+}
+
+.rlc-scope-knobs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rlc-channel-toggle {
+  --active-index: 0;
+  position: relative;
+  display: grid;
+  gap: 0.18rem;
+  width: 4.4rem;
+  padding: 0.28rem 0.28rem 0.28rem 0.58rem;
+  border: 2px solid rgba(19, 34, 56, 0.18);
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.rlc-channel-toggle::before {
+  content: "";
+  position: absolute;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  left: 1.25rem;
+  width: 0.14rem;
+  border-radius: 999px;
+  background: rgba(19, 34, 56, 0.18);
+  transform: translateX(-50%);
+}
+
+.rlc-channel-thumb {
+  position: absolute;
+  left: 1.25rem;
+  top: calc(0.68rem + var(--active-index) * 2.28rem);
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: #132238;
+  transform: translateX(-50%);
+  transition: top 120ms ease;
+}
+
+.rlc-channel-toggle button {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 2.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #5b6a7d;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: right;
+}
+
+.rlc-channel-toggle button.active {
+  color: #132238;
+}
+
+.rlc-knob-control {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+}
+
+.rlc-knob-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.rlc-knob {
+  position: relative;
+  width: 4.1rem;
+  height: 4.1rem;
+  border: 2px solid rgba(19, 34, 56, 0.18);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0 22%, #d8dee8 65%, #aeb8c7 100%);
+  cursor: pointer;
+}
+
+.rlc-knob::after {
+  content: "";
+  position: absolute;
+  left: calc(50% - 0.08rem);
+  top: 0.55rem;
+  width: 0.16rem;
+  height: 1.45rem;
+  border-radius: 999px;
+  background: #132238;
+  transform: rotate(var(--knob-angle));
+  transform-origin: 50% 1.5rem;
+}
+
+.rlc-knob-value {
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.95rem;
+}
+
+.rlc-readout {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.rlc-readout-card {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem;
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgba(28, 53, 87, 0.12);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.rlc-readout-card span {
+  color: var(--text-primary);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.rlc-readout-card strong {
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
 .electrostatics-layout {
   display: grid;
   grid-template-columns: minmax(240px, 290px) minmax(0, 1fr);
@@ -374,9 +863,739 @@ button {
   cursor: nwse-resize;
 }
 
-.back-link {
+.circuit-builder-shell {
+  place-items: start center;
+}
+
+.circuit-builder-page {
+  display: grid;
+  gap: 1.2rem;
+  width: min(1180px, 100%);
+}
+
+.circuit-builder-header {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.9fr) minmax(18rem, 1fr);
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.circuit-builder-header .module-title {
+  font-size: clamp(2.1rem, 4vw, 3.6rem);
+}
+
+.circuit-builder-header .module-description {
+  margin: 0;
+}
+
+.circuit-builder-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(750px, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.circuit-builder-controls,
+.circuit-builder-board-panel {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(28, 53, 87, 0.1);
+  border-radius: 20px;
+  padding: 1.25rem;
+}
+
+.circuit-builder-controls {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.circuit-builder-panel-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+}
+
+.circuit-builder-tool-grid,
+.circuit-builder-actions {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.circuit-builder-tool-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 2rem;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.circuit-builder-tool,
+.circuit-builder-reset {
+  width: 100%;
+  padding: 0.78rem 0.9rem;
+  border: 1px solid rgba(19, 34, 56, 0.12);
+  border-radius: 14px;
+  background: #ffffff;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.circuit-builder-tool-info {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgba(19, 34, 56, 0.16);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #132238;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.circuit-builder-tool-popup {
+  position: absolute;
+  z-index: 4;
+  right: 0;
+  top: calc(100% + 0.25rem);
+  width: min(260px, 100%);
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgba(19, 34, 56, 0.18);
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(19, 34, 56, 0.16);
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.circuit-builder-tool.active {
+  border-color: transparent;
+  background: #132238;
+  color: #ffffff;
+}
+
+.circuit-builder-hint {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.circuit-builder-board-panel {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+}
+
+.circuit-builder-board {
+  display: block;
+  width: 750px;
+  height: 750px;
+  border: 1px solid rgba(28, 53, 87, 0.12);
+  border-radius: 16px;
+  background: #fbfcfe;
+  touch-action: none;
+}
+
+.circuit-builder-grid-line {
+  stroke: rgba(67, 85, 109, 0.12);
+  stroke-width: 1;
+}
+
+.circuit-builder-wire-line {
+  stroke: #1f2937;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.circuit-builder-component {
+  cursor: pointer;
+}
+
+.circuit-builder-resistor-body {
+  fill: #fff7d6;
+  stroke: #8a6a16;
+  stroke-width: 3;
+  cursor: pointer;
+}
+
+.circuit-builder-battery-plate {
+  stroke: #b91c1c;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.circuit-builder-component-label {
+  fill: #132238;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 15px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: rgba(251, 252, 254, 0.9);
+  stroke-width: 3;
+  pointer-events: none;
+}
+
+.circuit-builder-current-arrow {
+  stroke: #0f6d8c;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.circuit-builder-current-arrowhead {
+  fill: #0f6d8c;
+}
+
+.circuit-builder-current-label {
+  fill: #0b5670;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 18px;
+  font-weight: 800;
+  paint-order: stroke;
+  stroke: #fbfcfe;
+  stroke-width: 5;
+  pointer-events: none;
+}
+
+.circuit-builder-voltmeter-lead {
+  stroke: #2563eb;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 5 4;
+}
+
+.circuit-builder-voltmeter-lead.positive {
+  stroke: #dc2626;
+}
+
+.circuit-builder-voltmeter-lead.negative {
+  stroke: #2563eb;
+}
+
+.circuit-builder-voltmeter-body {
+  fill: #eef6ff;
+  stroke: #1d4ed8;
+  stroke-width: 2;
+}
+
+.circuit-builder-ohmmeter-lead {
+  stroke: #6f4a1f;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 5 4;
+}
+
+.circuit-builder-ohmmeter-body {
+  fill: #f5eadb;
+  stroke: #5b3412;
+  stroke-width: 2;
+}
+
+.circuit-builder-ohmmeter-label {
+  fill: #5b3412;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 17px;
+  font-weight: 800;
+  paint-order: stroke;
+  stroke: #fbfcfe;
+  stroke-width: 5;
+  pointer-events: none;
+}
+
+.circuit-builder-potential-probe-dot {
+  fill: #eef6ff;
+  stroke: #1d4ed8;
+  stroke-width: 3;
+}
+
+.circuit-builder-voltage-label {
+  fill: #1d4ed8;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 17px;
+  font-weight: 800;
+  paint-order: stroke;
+  stroke: #fbfcfe;
+  stroke-width: 5;
+  pointer-events: none;
+}
+
+.circuit-builder-node {
+  cursor: grab;
+}
+
+.circuit-builder-node-hit {
+  fill: transparent;
+}
+
+.circuit-builder-node-dot {
+  fill: #ffffff;
+  stroke: #132238;
+  stroke-width: 3;
+}
+
+.circuit-builder-node.connected .circuit-builder-node-dot {
+  fill: #132238;
+  stroke: none;
+}
+
+.circuit-builder-node.grounded .circuit-builder-node-dot {
+  fill: #132238;
+}
+
+.circuit-builder-ground-symbol {
+  fill: none;
+  stroke: #132238;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.circuit-builder-results {
+  width: 100%;
+  min-height: 5rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(28, 53, 87, 0.08);
+  border-radius: 16px;
+  background: #f5f8fc;
+  color: var(--text-secondary);
+}
+
+.circuit-builder-result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.circuit-builder-result-title {
+  margin: 0 0 0.45rem;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
+.circuit-builder-result-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid rgba(28, 53, 87, 0.08);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+}
+
+.three-phase-shell {
+  place-items: start center;
+  padding: 1rem;
+}
+
+.three-phase-page {
+  --three-phase-bg: #080a0d;
+  --three-phase-panel: #10151b;
+  --three-phase-panel-strong: #151b23;
+  --three-phase-border: rgba(210, 224, 240, 0.16);
+  --three-phase-text: #eef5fb;
+  --three-phase-muted: #a9b8c8;
+  --three-phase-grid: rgba(210, 224, 240, 0.22);
+
+  display: grid;
+  width: min(1600px, 100%);
+  min-height: calc(100vh - 2rem);
+  gap: 0;
+  background: var(--three-phase-bg);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.34);
+  color: var(--three-phase-text);
+  padding: clamp(1rem, 2vw, 1.5rem);
+}
+
+.three-phase-page .back-link {
+  color: #8fd6ff;
+}
+
+.three-phase-header .module-title {
+  margin: 0.5rem 0 0.35rem;
+  font-size: clamp(1.7rem, 2.6vw, 3rem);
+  line-height: 1;
+}
+
+.three-phase-header .module-description {
+  margin: 0;
+  color: var(--three-phase-muted);
+  font-size: 0.96rem;
+  line-height: 1.4;
+}
+
+.three-phase-layout {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 1rem;
+  height: 100%;
+  min-height: 0;
+}
+
+.three-phase-header {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(420px, 0.95fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.three-phase-header .back-link {
   display: inline-block;
-  margin-bottom: 1.5rem;
+  margin: 0;
+}
+
+.three-phase-main-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.38fr) minmax(0, 1fr);
+  gap: 1rem;
+  min-height: 0;
+}
+
+.three-phase-left-column,
+.three-phase-right-column {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+  min-height: 0;
+}
+
+.three-phase-left-column {
+  min-height: 0;
+}
+
+.three-phase-visualization {
+  grid-column: 2;
+  display: grid;
+  grid-template-rows: auto auto;
+  align-content: start;
+  gap: 0.85rem;
+  min-height: 0;
+}
+
+.three-phase-panel {
+  background: var(--three-phase-panel);
+  border: 1px solid var(--three-phase-border);
+  border-radius: 20px;
+  padding: 1.25rem;
+  min-width: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.three-phase-panel-title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
+.three-phase-sliders {
+  display: grid;
+  align-content: start;
+  gap: 0.9rem;
+  min-height: 0;
+}
+
+.three-phase-slider-group {
+  display: grid;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.three-phase-slider-row {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 7.4rem) minmax(7rem, 1fr) 5rem;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.three-phase-load-label {
+  min-width: 0;
+  color: var(--three-phase-muted);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.three-phase-slider-row input {
+  accent-color: currentColor;
+}
+
+.three-phase-slider-row input {
+  width: 100%;
+}
+
+.three-phase-load-value {
+  color: var(--three-phase-text);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.88rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.three-phase-reset-button,
+.three-phase-run-button {
+  border: 1px solid rgba(210, 224, 240, 0.18);
+  border-radius: 14px;
+  background: #171e27;
+  color: var(--three-phase-text);
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.three-phase-reset-button {
+  width: 100%;
+  padding: 0.85rem 1rem;
+}
+
+.three-phase-reset-button:hover,
+.three-phase-run-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(143, 214, 255, 0.5);
+  background: #1e2834;
+}
+
+.three-phase-current-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+  padding: 0.75rem;
+  background: #0b0f14;
+  border: 1px solid rgba(210, 224, 240, 0.12);
+  border-radius: 16px;
+}
+
+.three-phase-current-chip {
+  display: grid;
+  grid-template-columns: auto minmax(4.5rem, 1fr) auto;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid rgba(210, 224, 240, 0.12);
+  border-radius: 10px;
+  background: #151b23;
+  color: var(--three-phase-muted);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.84rem;
+}
+
+.three-phase-current-chip .name,
+.three-phase-current-chip strong {
+  color: var(--three-phase-text);
+  font-weight: 700;
+}
+
+.three-phase-current-chip .amp,
+.three-phase-current-chip .angle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.three-phase-circuit {
+  position: relative;
+  margin: 0;
+  width: 100%;
+  aspect-ratio: var(--image-width) / var(--image-height);
+  overflow: hidden;
+  border: 1px solid var(--three-phase-border);
+  border-radius: 16px;
+  background: #050608;
+}
+
+.three-phase-circuit-thumbnail {
+  width: 100%;
+  min-width: 0;
+  cursor: zoom-in;
+}
+
+.three-phase-circuit-thumbnail:focus-visible {
+  outline: 3px solid rgba(143, 214, 255, 0.76);
+  outline-offset: 4px;
+}
+
+.three-phase-circuit-open {
+  position: absolute;
+  right: 0.65rem;
+  bottom: 0.65rem;
+  border: 1px solid rgba(210, 224, 240, 0.22);
+  border-radius: 999px;
+  background: rgba(8, 10, 13, 0.82);
+  color: var(--three-phase-text);
+  cursor: zoom-in;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.65rem;
+}
+
+.three-phase-circuit-full {
+  width: min(92vw, 1400px);
+  max-height: 82vh;
+}
+
+.three-phase-circuit-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.three-phase-circuit-modal {
+  width: min-content;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100vh - 2rem);
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.three-phase-circuit-modal::backdrop {
+  background: rgba(0, 0, 0, 0.76);
+}
+
+.three-phase-circuit-modal-content {
+  position: relative;
+  padding: 1rem;
+  border: 1px solid var(--three-phase-border);
+  border-radius: 20px;
+  background: var(--three-phase-bg);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+}
+
+.three-phase-circuit-close {
+  position: absolute;
+  top: 1.65rem;
+  right: 1.65rem;
+  z-index: 3;
+  border: 1px solid rgba(210, 224, 240, 0.22);
+  border-radius: 999px;
+  background: rgba(8, 10, 13, 0.88);
+  color: var(--three-phase-text);
+  cursor: pointer;
+  padding: 0.45rem 0.75rem;
+}
+
+.three-phase-load-hotspot {
+  position: absolute;
+  left: var(--load-left);
+  top: var(--load-top);
+  width: var(--load-width);
+  height: var(--load-height);
+  transform: translate(-50%, -50%);
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: help;
+}
+
+.three-phase-load-hotspot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.three-phase-load-hotspot:hover::after,
+.three-phase-load-hotspot:focus-visible::after {
+  border-color: color-mix(in srgb, var(--load-color) 72%, white 28%);
+  background: color-mix(in srgb, var(--load-color) 13%, transparent);
+}
+
+.three-phase-floating-tooltip {
+  position: fixed;
+  z-index: 1000;
+  display: grid;
+  gap: 0.18rem;
+  min-width: 8rem;
+  padding: 0.48rem 0.58rem;
+  border: 1px solid color-mix(in srgb, var(--load-color) 56%, white 44%);
+  border-radius: 10px;
+  background: rgba(12, 16, 22, 0.98);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.38);
+  color: var(--three-phase-muted);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.76rem;
+  line-height: 1.25;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(calc(-100% - 0.2rem));
+  transition: opacity 120ms ease, transform 120ms ease;
+  white-space: nowrap;
+}
+
+.three-phase-floating-tooltip-title {
+  color: var(--tooltip-color);
+  font-weight: 700;
+}
+
+.three-phase-floating-tooltip.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(calc(-100% - 0.45rem));
+}
+
+.three-phase-viz-stage {
+  display: grid;
+  gap: 0.55rem;
+  height: auto;
+}
+
+.three-phase-viz-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 2.1 / 1;
+  border: 1px solid var(--three-phase-border);
+  border-radius: 16px;
+  background: #050608;
+}
+
+.three-phase-run-button {
+  position: static;
+  justify-self: center;
+  min-width: 7.5rem;
+  min-height: 2.75rem;
+  padding: 0.62rem 1.1rem;
+  background: rgba(18, 24, 32, 0.94);
+  z-index: 5;
+}
+
+.three-phase-run-button:hover {
+  transform: translateY(-1px);
+}
+
+.three-phase-phasor-grid {
+  fill: none;
+  stroke: var(--three-phase-grid);
+  stroke-width: 1;
+}
+
+.three-phase-axis {
+  stroke: rgba(210, 224, 240, 0.36);
+  stroke-width: 1;
+}
+
+.three-phase-wave-grid {
+  stroke: rgba(210, 224, 240, 0.16);
+  stroke-dasharray: 4 4;
+  stroke-width: 1;
+}
+
+.three-phase-phasor-dashed {
+  stroke-dasharray: 4 3;
+  stroke-width: 1;
+  opacity: 0.68;
+}
+
+.three-phase-viz-label,
+.three-phase-scale-label {
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+}
+
+.three-phase-viz-label {
+  font-size: 12px;
+}
+
+.three-phase-scale-label {
+  fill: rgba(220, 232, 244, 0.82);
+  font-size: 10px;
 }
 
 @media (max-width: 640px) {
@@ -409,5 +1628,51 @@ button {
 
   .electrostatics-canvas {
     max-width: none;
+  }
+
+  .three-phase-header,
+  .three-phase-main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .three-phase-left-column,
+  .three-phase-visualization {
+    grid-column: auto;
+  }
+
+  .three-phase-circuit {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  .three-phase-slider-row {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .three-phase-load-value {
+    text-align: left;
+  }
+
+  .three-phase-current-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .three-phase-viz-svg {
+    height: auto;
+    aspect-ratio: 1.25 / 1;
+  }
+
+  .three-phase-run-button {
+    top: 0.55rem;
+    min-width: 6.5rem;
+    padding: 0.4rem 0.58rem;
+    font-size: 0.82rem;
+  }
+
+  .three-phase-tooltip {
+    min-width: 7rem;
+    font-size: 0.68rem;
   }
 }

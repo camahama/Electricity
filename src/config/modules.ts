@@ -1,5 +1,8 @@
+import { renderCircuitBuilderModule } from "../modules/circuit-builder/index.js";
 import { renderElectrostaticsModule } from "../modules/electrostatics/index.js";
 import { renderElectrostaticsMaterialsModule } from "../modules/electrostatics-materials/index.js";
+import { renderRlcCircuitModule } from "../modules/rlc-circuit/index.js";
+import { renderThreePhaseModule } from "../modules/three-phase/index.js";
 
 export type ModuleRenderContext = {
   t: (key: string, values?: Record<string, string | number>) => string;
@@ -24,5 +27,20 @@ export const moduleRegistry: ModuleDefinition[] = [
     titleKey: "modules.electrostaticsMaterials.title",
     render: renderElectrostaticsMaterialsModule,
     hiddenFromMenu: true,
+  },
+  {
+    slug: "three-phase",
+    titleKey: "modules.threePhase.title",
+    render: renderThreePhaseModule,
+  },
+  {
+    slug: "circuit-builder",
+    titleKey: "modules.circuitBuilder.title",
+    render: renderCircuitBuilderModule,
+  },
+  {
+    slug: "rlc-circuit",
+    titleKey: "modules.rlcCircuit.title",
+    render: renderRlcCircuitModule,
   },
 ];
