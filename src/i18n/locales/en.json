@@ -70,7 +70,7 @@
       "resetButton": "Reset loads",
       "resultingCurrents": "Resulting currents",
       "linkedHeading": "Phasor + waveform",
-      "startTime": "Start time (1:100)",
+      "startTime": "Start time",
       "stopTime": "Stop time (t=0)",
       "ampUnit": "A",
       "imageAlt": "Three-phase circuit diagram",
