@@ -1,8 +1,10 @@
 import type { ModuleRenderContext } from "../../config/modules.js";
 import { solveLinearCircuit, type LinearCircuitComponent } from "./physics/linearCircuit.js";
 
-const BOARD_SIZE = 750;
+const BOARD_WIDTH = 900;
+const BOARD_HEIGHT = 700;
 const SNAP_RADIUS = 18;
+const NODE_SPLIT_GAP = SNAP_RADIUS + 14;
 const COMPONENT_HALF_SPAN = 60;
 const REAL_BATTERY_LEFT_SPAN = 95;
 const REAL_BATTERY_RIGHT_SPAN = 95;
@@ -33,6 +35,7 @@ type DraggingProbe =
   | { type: "potential"; id: string; grabOffsetX: number; grabOffsetY: number }
   | { type: "voltmeter"; id: string; grabOffsetX: number; grabOffsetY: number }
   | { type: "ohmmeter"; id: string; grabOffsetX: number; grabOffsetY: number };
+type DraggingNode = { id: string; startX: number; startY: number; moved: boolean };
 type DraggingComponent = {
   startX: number;
   startY: number;
@@ -54,7 +57,7 @@ const state = {
   pendingWireNode: null as string | null,
   pendingVoltmeterNode: null as string | null,
   pendingOhmmeterNode: null as string | null,
-  draggingNode: null as string | null,
+  draggingNode: null as DraggingNode | null,
   draggingProbe: null as DraggingProbe | null,
   draggingComponent: null as DraggingComponent | null,
   lastResistanceOhms: DEFAULT_RESISTANCE_OHMS,
@@ -93,7 +96,7 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   const results = element("div", "circuit-builder-results");
 
-  svg.setAttribute("viewBox", `0 0 ${BOARD_SIZE} ${BOARD_SIZE}`);
+  svg.setAttribute("viewBox", `0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`);
   svg.setAttribute("class", "circuit-builder-board");
   svg.setAttribute("role", "img");
   svg.setAttribute("aria-label", t("modules.circuitBuilder.boardLabel"));
@@ -128,7 +131,7 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
       const button = document.createElement("button");
       button.type = "button";
       button.className = entry.tool === state.selectedTool ? "circuit-builder-tool active" : "circuit-builder-tool";
-      button.textContent = entry.label;
+      button.append(createToolIcon(entry.tool), element("span", "circuit-builder-tool-label", entry.label));
       button.addEventListener("click", () => {
         cancelPendingActions();
         state.selectedTool = entry.tool;
@@ -174,8 +177,7 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
     });
     actions.append(clearButton);
 
-    const hint = element("p", "circuit-builder-hint", t("modules.circuitBuilder.instructions"));
-    controls.append(toolTitle, toolGrid, actions, hint);
+    controls.append(toolTitle, toolGrid, actions);
   }
 
   function renderBoard() {
@@ -206,9 +208,10 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
 
   function renderResults() {
     results.replaceChildren();
+    results.hidden = false;
 
     if (state.nodes.length === 0) {
-      results.textContent = t("modules.circuitBuilder.emptyState");
+      results.textContent = t("modules.circuitBuilder.instructions");
       return;
     }
 
@@ -220,14 +223,12 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
     }
 
     try {
-      const solution = solveLinearCircuit({
+      solveLinearCircuit({
         nodes: physicsNodes(),
         groundNode,
         components: physicsComponents(),
       });
-      const output = element("div", "circuit-builder-result-grid");
-      output.append(renderCurrentTable(visibleComponentCurrents(solution.componentCurrents)));
-      results.append(output);
+      results.hidden = true;
     } catch (error) {
       results.textContent = error instanceof Error ? error.message : String(error);
     }
@@ -239,6 +240,7 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
     group.addEventListener("pointerdown", (event) => {
       const point = svgPoint(svg, event);
       if (state.selectedTool === "select") {
+        event.preventDefault();
         event.stopPropagation();
         if (handleComponentDoubleClick(component, point, event.target)) {
           update();
@@ -307,9 +309,14 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
       const longCenter = { x: center.x + ux * 9, y: center.y + uy * 9 };
       appendLine(group, negative.x, negative.y, shortCenter.x, shortCenter.y, "circuit-builder-wire-line");
       appendLine(group, longCenter.x, longCenter.y, positive.x, positive.y, "circuit-builder-wire-line");
+      appendLine(group, shortCenter.x, shortCenter.y, longCenter.x, longCenter.y, "circuit-builder-battery-hit");
       appendPlate(group, shortCenter, normal, 26);
       appendPlate(group, longCenter, normal, 44);
-      group.append(label(center.x, center.y + 34, formatVoltage(component.voltageVolts)));
+      const labelX = center.x + Math.cos(normal) * 34;
+      const labelY = center.y + Math.sin(normal) * 34;
+      const valueLabel = label(labelX, labelY, formatVoltage(component.voltageVolts));
+      valueLabel.setAttribute("transform", `rotate(${readableAngleDegrees(angle)} ${labelX} ${labelY})`);
+      group.append(valueLabel);
       return group;
     }
 
@@ -334,12 +341,14 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
         "circuit-builder-node",
         isConnected ? "connected" : "",
         isGrounded ? "grounded" : "",
+        shouldUseSolderingCursor() ? "soldering" : "",
       ]
         .filter(Boolean)
         .join(" "),
     );
     group.setAttribute("transform", `translate(${node.x} ${node.y})`);
     group.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
       event.stopPropagation();
       if (state.selectedTool === "ground") {
         state.groundNode = node.id;
@@ -375,13 +384,9 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
       if (state.selectedTool === "erase") {
         return;
       }
-      state.draggingNode = node.id;
+      const point = svgPoint(svg, event);
+      state.draggingNode = { id: node.id, startX: point.x, startY: point.y, moved: false };
       svg.setPointerCapture(event.pointerId);
-    });
-    group.addEventListener("dblclick", (event) => {
-      event.stopPropagation();
-      splitNode(node.id);
-      update();
     });
 
     const hit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
@@ -545,10 +550,14 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
     if (state.draggingNode == null) {
       return;
     }
-    const node = getNode(state.draggingNode);
+    const node = getNode(state.draggingNode.id);
     const point = svgPoint(svg, event);
-    node.x = clamp(point.x, 0, BOARD_SIZE);
-    node.y = clamp(point.y, 0, BOARD_SIZE);
+    if (!state.draggingNode.moved && Math.hypot(point.x - state.draggingNode.startX, point.y - state.draggingNode.startY) < 3) {
+      return;
+    }
+    state.draggingNode.moved = true;
+    node.x = clamp(point.x, 0, BOARD_WIDTH);
+    node.y = clamp(point.y, 0, BOARD_HEIGHT);
     renderBoard();
   });
 
@@ -574,8 +583,13 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
     }
 
     if (state.draggingNode != null) {
-      mergeTouchingNode(state.draggingNode);
+      const draggingNode = state.draggingNode;
       state.draggingNode = null;
+      if (draggingNode.moved) {
+        mergeTouchingNode(draggingNode.id);
+      } else {
+        splitNode(draggingNode.id);
+      }
       update();
     }
   });
@@ -805,8 +819,8 @@ function moveDraggingComponent(point: { x: number; y: number }): boolean {
 
   for (const startNode of dragging.nodes) {
     const node = getNode(startNode.id);
-    node.x = clamp(startNode.x + deltaX, 0, BOARD_SIZE);
-    node.y = clamp(startNode.y + deltaY, 0, BOARD_SIZE);
+    node.x = clamp(startNode.x + deltaX, 0, BOARD_WIDTH);
+    node.y = clamp(startNode.y + deltaY, 0, BOARD_HEIGHT);
   }
   return true;
 }
@@ -823,7 +837,17 @@ function shouldEditComponentOnDoubleClick(component: BoardComponent, target: Eve
   return (
     target.classList.contains("circuit-builder-resistor-body") ||
     target.classList.contains("circuit-builder-battery-plate") ||
+    target.classList.contains("circuit-builder-battery-hit") ||
     target.classList.contains("circuit-builder-component-label")
+  );
+}
+
+function shouldUseSolderingCursor(): boolean {
+  return (
+    state.selectedTool === "wire" ||
+    state.selectedTool === "potentialProbe" ||
+    state.selectedTool === "voltmeter" ||
+    state.selectedTool === "ohmmeter"
   );
 }
 
@@ -842,14 +866,9 @@ function splitNode(nodeId: string): void {
     return;
   }
 
-  const splitNodes = endpoints.map((_, index) => {
-    const angle = (Math.PI * 2 * index) / endpoints.length - Math.PI / 2;
-    const radius = endpoints.length === 2 ? 14 : 18;
-    const splitNode = {
-      id: nextNodeIdValue(),
-      x: clamp(node.x + Math.cos(angle) * radius, 0, BOARD_SIZE),
-      y: clamp(node.y + Math.sin(angle) * radius, 0, BOARD_SIZE),
-    };
+  const splitNodes = endpoints.map((endpoint, index) => {
+    const position = splitNodePosition(node, endpoint, index, endpoints.length);
+    const splitNode = { id: nextNodeIdValue(), x: position.x, y: position.y };
     state.nodes.push(splitNode);
     return splitNode;
   });
@@ -891,6 +910,42 @@ function splitNode(nodeId: string): void {
   }
 
   state.nodes = state.nodes.filter((entry) => entry.id !== nodeId);
+}
+
+function splitNodePosition(
+  node: CircuitNode,
+  endpoint: { component: BoardComponent; key: ComponentEndpointKey },
+  index: number,
+  total: number,
+): { x: number; y: number } {
+  const otherNode = getOtherComponentNode(endpoint.component, endpoint.key);
+  let dx = otherNode.x - node.x;
+  let dy = otherNode.y - node.y;
+  let length = Math.hypot(dx, dy);
+
+  if (length < 1) {
+    const angle = (Math.PI * 2 * index) / total - Math.PI / 2;
+    dx = Math.cos(angle);
+    dy = Math.sin(angle);
+    length = 1;
+  }
+
+  const ux = dx / length;
+  const uy = dy / length;
+  const perpendicularOffset = total > 2 ? ((index % 2 === 0 ? -1 : 1) * Math.floor(index / 2) * 7) : 0;
+
+  return {
+    x: clamp(node.x + ux * NODE_SPLIT_GAP - uy * perpendicularOffset, 0, BOARD_WIDTH),
+    y: clamp(node.y + uy * NODE_SPLIT_GAP + ux * perpendicularOffset, 0, BOARD_HEIGHT),
+  };
+}
+
+function getOtherComponentNode(component: BoardComponent, key: ComponentEndpointKey): CircuitNode {
+  if (isBatteryComponent(component)) {
+    return getNode(key === "positiveNode" ? component.negativeNode : component.positiveNode);
+  }
+
+  return getNode(key === "nodeA" ? component.nodeB : component.nodeA);
 }
 
 function splitWireAtPoint(component: Extract<BoardComponent, { type: "wire" }>, point: { x: number; y: number }): string {
@@ -1070,26 +1125,6 @@ function editComponentValue(component: BoardComponent): void {
     component.voltageVolts = parsed;
     state.lastBatteryVoltageVolts = parsed;
   }
-}
-
-function renderCurrentTable(currents: Array<{ componentId: string; currentAmps: number | null }>): HTMLElement {
-  const table = element("div", "circuit-builder-result-section");
-  table.append(element("h3", "circuit-builder-result-title", "Currents"));
-  for (const current of currents) {
-    table.append(resultRow(current.componentId, current.currentAmps == null ? "—" : `${current.currentAmps.toFixed(4)} A`));
-  }
-  return table;
-}
-
-function visibleComponentCurrents(
-  currents: Array<{ componentId: string; currentAmps: number | null }>,
-): Array<{ componentId: string; currentAmps: number | null }> {
-  return state.components.map((component) => {
-    return {
-      componentId: component.id,
-      currentAmps: currents.find((current) => current.componentId === component.id)?.currentAmps ?? null,
-    };
-  });
 }
 
 function renderPotentialProbe(probe: PotentialProbe): SVGElement {
@@ -1274,8 +1309,8 @@ function moveDraggingProbe(point: { x: number; y: number }): void {
       return;
     }
     const baseCenter = meterBaseCenter(meter);
-    meter.offsetX = clamp(target.x, 58, BOARD_SIZE - 58) - baseCenter.x;
-    meter.offsetY = clamp(target.y, 34, BOARD_SIZE - 34) - baseCenter.y;
+    meter.offsetX = clamp(target.x, 58, BOARD_WIDTH - 58) - baseCenter.x;
+    meter.offsetY = clamp(target.y, 34, BOARD_HEIGHT - 34) - baseCenter.y;
     return;
   }
 
@@ -1284,8 +1319,8 @@ function moveDraggingProbe(point: { x: number; y: number }): void {
     return;
   }
   const node = getNode(potentialProbe.nodeId);
-  potentialProbe.offsetX = clamp(target.x, 12, BOARD_SIZE - 12) - node.x;
-  potentialProbe.offsetY = clamp(target.y, 12, BOARD_SIZE - 12) - node.y;
+  potentialProbe.offsetX = clamp(target.x, 12, BOARD_WIDTH - 12) - node.x;
+  potentialProbe.offsetY = clamp(target.y, 12, BOARD_HEIGHT - 12) - node.y;
 }
 
 function meterGeometry(meter: MeterProbe): {
@@ -1300,8 +1335,8 @@ function meterGeometry(meter: MeterProbe): {
     positive,
     negative,
     meterCenter: {
-      x: clamp(center.x + meter.offsetX, 58, BOARD_SIZE - 58),
-      y: clamp(center.y + meter.offsetY, 34, BOARD_SIZE - 34),
+      x: clamp(center.x + meter.offsetX, 58, BOARD_WIDTH - 58),
+      y: clamp(center.y + meter.offsetY, 34, BOARD_HEIGHT - 34),
     },
   };
 }
@@ -1311,8 +1346,8 @@ function meterBaseCenter(meter: MeterProbe): { x: number; y: number } {
   const negative = getNode(meter.negativeNode);
   const center = midpoint(positive, negative);
   return {
-    x: clamp(center.x, 58, BOARD_SIZE - 58),
-    y: clamp(center.y - 54, 34, BOARD_SIZE - 34),
+    x: clamp(center.x, 58, BOARD_WIDTH - 58),
+    y: clamp(center.y - 54, 34, BOARD_HEIGHT - 34),
   };
 }
 
@@ -1323,15 +1358,15 @@ function potentialProbeGeometry(probe: PotentialProbe): {
 } {
   const node = getNode(probe.nodeId);
   const probeCenter = {
-    x: clamp(node.x + probe.offsetX, 12, BOARD_SIZE - 12),
-    y: clamp(node.y + probe.offsetY, 12, BOARD_SIZE - 12),
+    x: clamp(node.x + probe.offsetX, 12, BOARD_WIDTH - 12),
+    y: clamp(node.y + probe.offsetY, 12, BOARD_HEIGHT - 12),
   };
   return {
     node,
     probeCenter,
     labelPosition: {
-      x: clamp(probeCenter.x + 12, 40, BOARD_SIZE - 90),
-      y: clamp(probeCenter.y - 4, 24, BOARD_SIZE - 18),
+      x: clamp(probeCenter.x + 12, 40, BOARD_WIDTH - 90),
+      y: clamp(probeCenter.y - 4, 24, BOARD_HEIGHT - 18),
     },
   };
 }
@@ -1740,31 +1775,25 @@ function getProbeLabelPosition(
 ): { x: number; y: number; anchor: string } {
   if (horizontal) {
     return {
-      x: clamp(center.x, 46, BOARD_SIZE - 46),
-      y: center.y > BOARD_SIZE - 46 ? center.y - 34 : center.y + 34,
+      x: clamp(center.x, 46, BOARD_WIDTH - 46),
+      y: center.y > BOARD_HEIGHT - 46 ? center.y - 34 : center.y + 34,
       anchor: "middle",
     };
   }
 
-  if (center.x > BOARD_SIZE / 2) {
+  if (center.x > BOARD_WIDTH / 2) {
     return {
-      x: clamp(center.x - 34, 120, BOARD_SIZE - 34),
-      y: clamp(center.y + 5, 24, BOARD_SIZE - 18),
+      x: clamp(center.x - 34, 120, BOARD_WIDTH - 34),
+      y: clamp(center.y + 5, 24, BOARD_HEIGHT - 18),
       anchor: "end",
     };
   }
 
   return {
-    x: clamp(center.x + 34, 34, BOARD_SIZE - 120),
-    y: clamp(center.y + 5, 24, BOARD_SIZE - 18),
+    x: clamp(center.x + 34, 34, BOARD_WIDTH - 120),
+    y: clamp(center.y + 5, 24, BOARD_HEIGHT - 18),
     anchor: "start",
   };
-}
-
-function resultRow(labelText: string, valueText: string): HTMLElement {
-  const row = element("div", "circuit-builder-result-row");
-  row.append(element("span", "", labelText), element("strong", "", valueText));
-  return row;
 }
 
 function getOrCreateNode(x: number, y: number): string {
@@ -1776,7 +1805,7 @@ function getOrCreateNode(x: number, y: number): string {
 }
 
 function createNodeAt(x: number, y: number): string {
-  const node = { id: nextNodeIdValue(), x: clamp(x, 0, BOARD_SIZE), y: clamp(y, 0, BOARD_SIZE) };
+  const node = { id: nextNodeIdValue(), x: clamp(x, 0, BOARD_WIDTH), y: clamp(y, 0, BOARD_HEIGHT) };
   state.nodes.push(node);
   return node.id;
 }
@@ -1888,9 +1917,11 @@ function nextComponentIdValue(prefix: string): string {
 function createGrid(): SVGElement {
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("class", "circuit-builder-grid");
-  for (let value = 0; value <= BOARD_SIZE; value += 50) {
-    appendLine(group, value, 0, value, BOARD_SIZE, "circuit-builder-grid-line");
-    appendLine(group, 0, value, BOARD_SIZE, value, "circuit-builder-grid-line");
+  for (let x = 0; x <= BOARD_WIDTH; x += 50) {
+    appendLine(group, x, 0, x, BOARD_HEIGHT, "circuit-builder-grid-line");
+  }
+  for (let y = 0; y <= BOARD_HEIGHT; y += 50) {
+    appendLine(group, 0, y, BOARD_WIDTH, y, "circuit-builder-grid-line");
   }
   return group;
 }
@@ -2097,6 +2128,118 @@ function formatSignificant(value: number, minimumSignificantDigits = 1): string 
   }
 
   return trimmedDecimal.length > 0 ? `${integerPart}.${trimmedDecimal}` : integerPart;
+}
+
+function readableAngleDegrees(angleRadians: number): number {
+  let angleDegrees = (angleRadians * 180) / Math.PI;
+  while (angleDegrees > 90) {
+    angleDegrees -= 180;
+  }
+  while (angleDegrees < -90) {
+    angleDegrees += 180;
+  }
+  return angleDegrees;
+}
+
+function createToolIcon(tool: Tool): SVGSVGElement {
+  const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  icon.setAttribute("class", "circuit-builder-tool-icon");
+  icon.setAttribute("viewBox", "0 0 64 36");
+  icon.setAttribute("aria-hidden", "true");
+
+  const line = (x1: number, y1: number, x2: number, y2: number, className = "stroke") => {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    node.setAttribute("x1", String(x1));
+    node.setAttribute("y1", String(y1));
+    node.setAttribute("x2", String(x2));
+    node.setAttribute("y2", String(y2));
+    node.setAttribute("class", className);
+    icon.append(node);
+  };
+  const circle = (cx: number, cy: number, r: number, className = "stroke") => {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    node.setAttribute("cx", String(cx));
+    node.setAttribute("cy", String(cy));
+    node.setAttribute("r", String(r));
+    node.setAttribute("class", className);
+    icon.append(node);
+  };
+  const rect = (x: number, y: number, width: number, height: number, className = "stroke") => {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    node.setAttribute("x", String(x));
+    node.setAttribute("y", String(y));
+    node.setAttribute("width", String(width));
+    node.setAttribute("height", String(height));
+    node.setAttribute("rx", "3");
+    node.setAttribute("class", className);
+    icon.append(node);
+  };
+  const path = (d: string, className = "stroke") => {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    node.setAttribute("d", d);
+    node.setAttribute("class", className);
+    icon.append(node);
+  };
+  const text = (x: number, y: number, value: string) => {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    node.setAttribute("x", String(x));
+    node.setAttribute("y", String(y));
+    node.setAttribute("class", "text");
+    node.textContent = value;
+    icon.append(node);
+  };
+
+  if (tool === "select") {
+    path("M 20 20 V 14 C 20 11 24 11 24 14 V 20 V 9 C 24 6 28 6 28 9 V 20 V 12 C 28 9 32 9 32 12 V 21 V 15 C 32 12 36 12 36 15 V 22 L 39 18 C 41 16 44 18 43 21 L 39 30 C 38 33 36 34 32 34 H 26 C 22 34 19 32 17 29 L 12 21 C 11 19 13 17 15 18 Z");
+  } else if (tool === "wire") {
+    line(8, 18, 56, 18);
+    circle(8, 18, 3, "fill");
+    circle(56, 18, 3, "fill");
+  } else if (tool === "resistor") {
+    line(5, 18, 15, 18);
+    rect(15, 9, 34, 18);
+    line(49, 18, 59, 18);
+  } else if (tool === "idealBattery") {
+    line(7, 18, 24, 18);
+    line(40, 18, 57, 18);
+    line(26, 7, 26, 29);
+    line(38, 12, 38, 24);
+  } else if (tool === "realBattery") {
+    line(5, 18, 17, 18);
+    line(19, 7, 19, 29);
+    line(28, 12, 28, 24);
+    line(28, 18, 35, 18);
+    rect(35, 10, 21, 16);
+    line(56, 18, 61, 18);
+  } else if (tool === "ground") {
+    line(32, 6, 32, 16);
+    line(18, 16, 46, 16);
+    line(23, 23, 41, 23);
+    line(28, 30, 36, 30);
+  } else if (tool === "currentProbe") {
+    line(8, 18, 56, 18);
+    path("M 35 10 L 48 18 L 35 26 Z", "fill");
+  } else if (tool === "potentialProbe") {
+    circle(22, 18, 5, "fill");
+    line(27, 18, 39, 18);
+    text(44, 22, "V");
+  } else if (tool === "voltmeter") {
+    line(8, 18, 18, 18);
+    line(46, 18, 56, 18);
+    circle(32, 18, 13);
+    text(32, 23, "V");
+  } else if (tool === "ohmmeter") {
+    line(8, 18, 18, 18);
+    line(46, 18, 56, 18);
+    circle(32, 18, 13);
+    text(32, 23, "Ω");
+  } else if (tool === "erase") {
+    path("M 21 9 L 48 9 L 43 28 L 16 28 Z");
+    line(25, 14, 39, 24);
+    line(39, 14, 25, 24);
+  }
+
+  return icon;
 }
 
 function element<K extends keyof HTMLElementTagNameMap>(

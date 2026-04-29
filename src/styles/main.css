@@ -870,7 +870,7 @@ button {
 .circuit-builder-page {
   display: grid;
   gap: 1.2rem;
-  width: min(1180px, 100%);
+  width: min(1500px, 100%);
 }
 
 .circuit-builder-header {
@@ -890,7 +890,7 @@ button {
 
 .circuit-builder-layout {
   display: grid;
-  grid-template-columns: minmax(260px, 320px) minmax(750px, 1fr);
+  grid-template-columns: minmax(260px, 320px) minmax(900px, 1fr);
   gap: 1.25rem;
   align-items: start;
 }
@@ -940,6 +940,47 @@ button {
   cursor: pointer;
 }
 
+.circuit-builder-tool {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr);
+  gap: 0.6rem;
+  align-items: center;
+  min-height: 3.2rem;
+  text-align: left;
+}
+
+.circuit-builder-tool-label {
+  min-width: 0;
+}
+
+.circuit-builder-tool-icon {
+  justify-self: center;
+  width: 2.8rem;
+  height: 1.6rem;
+  overflow: visible;
+}
+
+.circuit-builder-tool-icon .stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.circuit-builder-tool-icon .fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+.circuit-builder-tool-icon .text {
+  fill: currentColor;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 15px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
 .circuit-builder-tool-info {
   width: 2rem;
   height: 2rem;
@@ -974,12 +1015,6 @@ button {
   color: #ffffff;
 }
 
-.circuit-builder-hint {
-  margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.45;
-}
-
 .circuit-builder-board-panel {
   display: grid;
   gap: 1rem;
@@ -988,12 +1023,15 @@ button {
 
 .circuit-builder-board {
   display: block;
-  width: 750px;
-  height: 750px;
+  width: min(900px, 100%);
+  height: auto;
+  aspect-ratio: 9 / 7;
   border: 1px solid rgba(28, 53, 87, 0.12);
   border-radius: 16px;
   background: #fbfcfe;
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .circuit-builder-grid-line {
@@ -1022,6 +1060,13 @@ button {
   stroke: #b91c1c;
   stroke-width: 5;
   stroke-linecap: round;
+}
+
+.circuit-builder-battery-hit {
+  stroke: transparent;
+  stroke-width: 22;
+  stroke-linecap: round;
+  pointer-events: stroke;
 }
 
 .circuit-builder-component-label {
@@ -1119,7 +1164,11 @@ button {
 }
 
 .circuit-builder-node {
-  cursor: grab;
+  cursor: pointer;
+}
+
+.circuit-builder-node.soldering {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%23000000' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 27 L11 22' stroke-width='2'/%3E%3Cpath d='M10 23 L15 18' stroke-width='6'/%3E%3Cpath d='M16 17 L25 8' stroke-width='6'/%3E%3Cpath d='M14 16 L18 20' stroke-width='3'/%3E%3Cpath d='M16 14 L20 18' stroke-width='3'/%3E%3Cpath d='M24 8 C26 5 29 6 30 9' stroke-width='2.4'/%3E%3Cpath d='M6 12 C4 15 8 17 6 20' stroke-width='2.4'/%3E%3Cpath d='M10 10 C8 13 12 15 10 18' stroke-width='2.4'/%3E%3C/g%3E%3C/svg%3E") 6 27, pointer;
 }
 
 .circuit-builder-node-hit {
@@ -1156,28 +1205,6 @@ button {
   border-radius: 16px;
   background: #f5f8fc;
   color: var(--text-secondary);
-}
-
-.circuit-builder-result-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.circuit-builder-result-title {
-  margin: 0 0 0.45rem;
-  color: var(--text-primary);
-  font-family: var(--font-display);
-  font-size: 1rem;
-}
-
-.circuit-builder-result-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.25rem 0;
-  border-bottom: 1px solid rgba(28, 53, 87, 0.08);
-  font-family: ui-monospace, "SFMono-Regular", monospace;
 }
 
 .three-phase-shell {
@@ -1642,6 +1669,13 @@ button {
 
   .three-phase-circuit {
     max-width: 100%;
+  }
+}
+
+@media (max-width: 1280px) {
+  .circuit-builder-header,
+  .circuit-builder-layout {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -6,7 +6,7 @@
     }
   },
   "home": {
-    "eyebrow": "Grundkurser i elektricitetslära, Fysiska institutionen, Lunds universitet",
+    "eyebrow": "Grundläggande elektricitetslära, Fysiska institutionen, Lunds universitet",
     "description": "En samling av enkla och presentationsvänliga simuleringar i elektricitet för föreläsningar och självstudier.",
     "menuTitle": "Moduler",
     "languageLabel": "Språk",
@@ -18,7 +18,7 @@
   "modules": {
     "electrostatics": {
       "title": "Elektrostatik",
-      "description": "Placera positiva och negativa punktladdningar på ytan för att bygga de första elektrostatiska situationerna.",
+      "description": "Placera positiva och negativa punktladdningar på ytan för att bygga ett elektrostatiskt landskap.",
       "controlsTitle": "Laddningskontroller",
       "instructions": "Välj laddningstyp och klicka sedan på ytan för att placera den. Om du klickar på en befintlig laddning läggs +1 eller -1 till beroende på vald knapp, och genom att dra kan du flytta den.",
       "positiveCharge": "Placera + laddning",
@@ -31,9 +31,9 @@
       "emptyState": "Inga laddningar placerade ännu.",
       "chargeCount": "Laddningar: {count}",
       "netCharge": "Nettoladdning: {charge}",
-      "boardTitle": "Potential-landskap",
+      "boardTitle": "Potentiallandskap",
       "fieldProbeToggle": "Aktivera fältprob",
-      "boardHint": "Ytan renderas live på ett 750 x 750-rutnät. Klicka för att placera, klicka igen för att ändra laddning och dra för att flytta.",
+      "boardHint": "Klicka för att placera laddningar, klicka igen för att ändra laddning ±1 och dra för att flytta.",
       "canvasLabel": "Yta för att placera laddningar i elektrostatik"
     },
     "electrostaticsMaterials": {
@@ -82,7 +82,7 @@
     },
     "circuitBuilder": {
       "title": "Elektriska kretsar",
-      "description": "Bygg en krets och beräkna potentialer och strömmar.",
+      "description": "Bygg en krets och beräkna potentialer och strömmar. Tips: bygg en krets och räkna ut strömmar och potentialer för hand först. Använd sedan simuleringen för att kontrollera dina svar.",
       "componentsTitle": "Komponenter",
       "selectTool": "Flytta / ändra",
       "wireTool": "Ledning",
@@ -95,7 +95,7 @@
       "voltmeterTool": "Voltmeter",
       "ohmmeterTool": "Ohmmeter",
       "eraseTool": "Radera komponent",
-      "selectInfo": "Dra för att flytta noder, voltmetrar och prober. Duppelklicka på en komponent för att ändra dess värde. Dubbelklicka på en nod eller ledning för att dela den.",
+      "selectInfo": "Dra för att flytta noder, voltmetrar och prober. Dubbelklicka på komponenter för att redigera deras värden. Dubbelklicka på ledningar eller klicka på noder för att dela dem.",
       "wireInfo": "Klicka på två punkter eller noder för att dra en ledning mellan dem.",
       "resistorInfo": "Klicka på ytan för att placera en resistor. Dubbelklicka på kroppen för att ändra resistansen.",
       "idealBatteryInfo": "Klicka på ytan för att placera en ideal spänningskälla. Dubbelklicka på polerna eller etiketten för att ändra spänningen.",
@@ -109,7 +109,7 @@
       "resistanceLabel": "Resistor",
       "voltageLabel": "Batteri",
       "clearAll": "Rensa allt",
-      "instructions": "Välj ett verktyg och klicka på ytan. Ledningar och volt/ohmmeter använder två klick. Dra noder och komponenter för att forma kretsen. Prober visar mätvärden på noder eller komponenter.",
+      "instructions": "Välj ett verktyg och klicka på ytan. Ledningar och volt/ohmmeter använder två klick. Dra noder och komponenter för att forma kretsen. Dubbelklicka på komponenter för att redigera värden, dubbelklicka på ledningar för att dela dem och klicka på noder för att dela dem.",
       "boardLabel": "Yta för att bygga kopplingar",
       "emptyState": "Placera en resistor, ett batteri, en ledning eller jord för att börja.",
       "noGround": "Placera ett batteri eller ange en jordnod för att lösa kretsen."
