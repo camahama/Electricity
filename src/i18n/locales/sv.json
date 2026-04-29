@@ -124,7 +124,7 @@
       "time": "Tid",
       "play": "Animera tiden",
       "pause": "Stoppa tiden (t=0)",
-      "formulaHint": "Visarens längd är amplituden. Den vertikala projektionen är momentanvärdet.",
+      "formulaHint": "Visarens längd motsvarar amplituden. Momentanvärdet ges av den vertikala projektionen.",
       "diagramLabel": "Interaktivt visardiagram kopplat till en sinusformad spänningsgraf"
     },
     "rlcCircuit": {

@@ -124,7 +124,7 @@
       "time": "Time",
       "play": "Animate time",
       "pause": "Stop time (t=0)",
-      "formulaHint": "The phasor length is the amplitude. Its vertical projection is the instantaneous voltage.",
+      "formulaHint": "The phasor length corresponds to the amplitude. The instantaneous voltage is given by its vertical projection.",
       "diagramLabel": "Interactive phasor diagram linked to a sinusoidal voltage graph"
     },
     "rlcCircuit": {

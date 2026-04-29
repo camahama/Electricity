@@ -292,7 +292,7 @@ export function renderPhasorDiagramModule({ t }: ModuleRenderContext): HTMLEleme
   function createLabels(): SVGElement {
     const group = svgGroup("phasor-label-layer");
     const { startX, endX } = visiblePeakInterval();
-    appendDimension(group, startX, 101, endX, 101, "T = 1 / f");
+    appendDimension(group, startX, 101, endX, 101, periodLabel);
     appendDimension(group, startX, WAVE_CENTER_Y, startX, voltageY(state.amplitude), "Û");
     return group;
   }
@@ -306,7 +306,7 @@ export function renderPhasorDiagramModule({ t }: ModuleRenderContext): HTMLEleme
         continue;
       }
       appendLine(group, WAVE_LEFT - 7, y, WAVE_LEFT + 7, y, "phasor-tick");
-      group.append(svgText(WAVE_LEFT - 42, y + 6, String(voltage), "phasor-tick-label"));
+      group.append(svgText(WAVE_LEFT - 14, y + 6, String(voltage), "phasor-tick-label phasor-y-tick-label"));
     }
 
     const visibleTimeMs = (WAVE_RIGHT - WAVE_LEFT) / timeScale();
@@ -317,7 +317,7 @@ export function renderPhasorDiagramModule({ t }: ModuleRenderContext): HTMLEleme
       }
       const x = timeX(time);
       appendLine(group, x, WAVE_CENTER_Y - 7, x, WAVE_CENTER_Y + 7, "phasor-tick");
-      group.append(svgText(x - 8, WAVE_CENTER_Y + 32, String(Math.round(time)), "phasor-tick-label"));
+      group.append(svgText(x, WAVE_CENTER_Y + 32, String(Math.round(time)), "phasor-tick-label phasor-x-tick-label"));
     }
     return group;
   }
@@ -449,9 +449,25 @@ function appendArrow(
   parent.append(head);
 }
 
-function appendDimension(parent: SVGElement, x1: number, y1: number, x2: number, y2: number, textContent: string): void {
+function appendDimension(
+  parent: SVGElement,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  textContent: string | (() => SVGTextElement),
+): void {
   appendLine(parent, x1, y1, x2, y2, "phasor-dimension");
-  parent.append(svgText((x1 + x2) / 2 + 8, (y1 + y2) / 2 - 8, textContent, "phasor-dimension-label"));
+  const text = typeof textContent === "function" ? textContent() : svgText(0, 0, textContent, "phasor-dimension-label");
+  text.setAttribute("x", String((x1 + x2) / 2 + 8));
+  text.setAttribute("y", String((y1 + y2) / 2 - 8));
+  parent.append(text);
+}
+
+function periodLabel(): SVGTextElement {
+  const text = svgText(0, 0, "", "phasor-dimension-label");
+  text.append(svgTspan("T", "symbol"), svgTspan(" = 1 / ", "value"), svgTspan("f", "symbol"));
+  return text;
 }
 
 function appendRmsLabel(parent: SVGElement, x: number, y: number, rmsVoltage: number): void {

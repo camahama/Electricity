@@ -1397,6 +1397,14 @@ button {
   font-weight: 700;
 }
 
+.phasor-y-tick-label {
+  text-anchor: end;
+}
+
+.phasor-x-tick-label {
+  text-anchor: middle;
+}
+
 .phasor-reference-circle {
   fill: none;
   stroke: #8b9098;
@@ -1498,6 +1506,10 @@ button {
 
 .phasor-dimension-label {
   font-size: 18px;
+}
+
+.phasor-dimension-label .value {
+  font-style: normal;
 }
 
 .three-phase-page {
