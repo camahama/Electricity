@@ -17,7 +17,7 @@
   },
   "modules": {
     "electrostatics": {
-      "title": "Elektrostatik",
+      "title": "Elektro-statik",
       "description": "Placera positiva och negativa punktladdningar på ytan för att bygga ett elektrostatiskt landskap.",
       "controlsTitle": "Laddningskontroller",
       "instructions": "Välj laddningstyp och klicka sedan på ytan för att placera den. Om du klickar på en befintlig laddning läggs +1 eller -1 till beroende på vald knapp, och genom att dra kan du flytta den.",
