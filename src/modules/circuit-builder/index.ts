@@ -12,6 +12,7 @@ const REAL_BATTERY_MIDDLE_OFFSET = -20;
 const DEFAULT_RESISTANCE_OHMS = 100;
 const DEFAULT_VOLTAGE_VOLTS = 9;
 const REAL_BATTERY_RESISTANCE_OHMS = 1;
+const DISPLAY_ZERO_RELATIVE_TOLERANCE = 1e-6;
 
 type Tool =
   | "select"
@@ -31,6 +32,7 @@ type PotentialProbe = { id: string; nodeId: string; offsetX: number; offsetY: nu
 type MeterProbe = { id: string; positiveNode: string; negativeNode: string; offsetX: number; offsetY: number };
 type VoltmeterProbe = MeterProbe;
 type OhmmeterProbe = MeterProbe;
+type DisplayZeroContext = { voltageThreshold: number; currentThreshold: number };
 type DraggingProbe =
   | { type: "potential"; id: string; grabOffsetX: number; grabOffsetY: number }
   | { type: "voltmeter"; id: string; grabOffsetX: number; grabOffsetY: number }
@@ -73,6 +75,7 @@ const state = {
 let nextNodeId = 1;
 let nextComponentId = 1;
 let nextProbeId = 1;
+let displayZeroContext: DisplayZeroContext = { voltageThreshold: 0, currentThreshold: 0 };
 
 export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderContext): HTMLElement {
   const page = document.createElement("main");
@@ -184,6 +187,7 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
 
   function renderBoard() {
     svg.replaceChildren();
+    displayZeroContext = createDisplayZeroContext();
     svg.append(createProbeMarker(), createGrid());
 
     for (const component of state.components) {
@@ -383,7 +387,7 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
         update();
         return;
       }
-      if (state.selectedTool === "erase") {
+      if (state.selectedTool === "erase" || state.selectedTool === "currentProbe") {
         return;
       }
       const point = svgPoint(svg, event);
@@ -1132,6 +1136,7 @@ function editComponentValue(component: BoardComponent): void {
 function renderPotentialProbe(probe: PotentialProbe): SVGElement {
   const { node, probeCenter, labelPosition } = potentialProbeGeometry(probe);
   const potential = potentialForNode(probe.nodeId);
+  const displayedPotential = potential == null ? null : zeroTinyVoltage(potential);
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("class", "circuit-builder-voltage-probe");
   const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
@@ -1141,7 +1146,7 @@ function renderPotentialProbe(probe: PotentialProbe): SVGElement {
   circle.setAttribute("class", "circuit-builder-potential-probe-dot");
   appendLine(group, node.x, node.y, probeCenter.x, probeCenter.y, "circuit-builder-voltmeter-lead");
   group.append(circle);
-  group.append(label(labelPosition.x, labelPosition.y, potential == null ? "—" : formatMeasurementVoltage(potential)));
+  group.append(label(labelPosition.x, labelPosition.y, displayedPotential == null ? "—" : formatMeasurementVoltage(displayedPotential)));
   group.lastElementChild?.setAttribute("class", "circuit-builder-voltage-label");
   group.lastElementChild?.setAttribute("text-anchor", "start");
   return group;
@@ -1150,6 +1155,7 @@ function renderPotentialProbe(probe: PotentialProbe): SVGElement {
 function renderVoltmeter(voltmeter: VoltmeterProbe): SVGElement {
   const { positive, negative, meterCenter } = meterGeometry(voltmeter);
   const voltage = voltageBetween(voltmeter.positiveNode, voltmeter.negativeNode);
+  const displayedVoltage = voltage == null ? null : zeroTinyVoltage(voltage);
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("class", "circuit-builder-voltmeter");
   appendLine(group, positive.x, positive.y, meterCenter.x - 28, meterCenter.y, "circuit-builder-voltmeter-lead positive");
@@ -1161,7 +1167,7 @@ function renderVoltmeter(voltmeter: VoltmeterProbe): SVGElement {
   body.setAttribute("height", "36");
   body.setAttribute("rx", "8");
   body.setAttribute("class", "circuit-builder-voltmeter-body");
-  group.append(body, label(meterCenter.x, meterCenter.y + 6, voltage == null ? "—" : formatMeasurementVoltage(voltage)));
+  group.append(body, label(meterCenter.x, meterCenter.y + 6, displayedVoltage == null ? "—" : formatMeasurementVoltage(displayedVoltage)));
   group.lastElementChild?.setAttribute("class", "circuit-builder-voltage-label");
   return group;
 }
@@ -1388,7 +1394,8 @@ function currentProbeGeometry(probe: CurrentProbe):
   }
 
   const { start, end } = componentEndpoints(component);
-  const current = currentForComponent(component.id);
+  const rawCurrent = currentForComponent(component.id);
+  const current = rawCurrent == null ? null : zeroTinyCurrent(rawCurrent);
   const direction = current == null || current >= 0 ? 1 : -1;
   const arrowStartNode = direction > 0 ? start : end;
   const arrowEndNode = direction > 0 ? end : start;
@@ -1453,6 +1460,55 @@ function voltageBetween(positiveNode: string, negativeNode: string): number | nu
     return null;
   }
   return (potentials[positiveNode] ?? 0) - (potentials[negativeNode] ?? 0);
+}
+
+function createDisplayZeroContext(): DisplayZeroContext {
+  const groundNode = getEffectiveGroundNode();
+  if (groundNode == null) {
+    return { voltageThreshold: 0, currentThreshold: 0 };
+  }
+
+  try {
+    const solution = solveLinearCircuit({
+      nodes: physicsNodes(),
+      groundNode,
+      components: physicsComponents(),
+    });
+    const physics = physicsComponents();
+    let maxVoltage = Math.max(0, ...Object.values(solution.nodePotentials).map((potential) => Math.abs(potential)));
+    let maxCurrent = 0;
+
+    for (const component of physics) {
+      const endpoints = physicsComponentEndpointIds(component);
+      maxVoltage = Math.max(
+        maxVoltage,
+        Math.abs((solution.nodePotentials[endpoints.startNode] ?? 0) - (solution.nodePotentials[endpoints.endNode] ?? 0)),
+      );
+    }
+
+    for (const component of state.components) {
+      const componentCurrent = solution.componentCurrents.find((entry) => entry.componentId === component.id);
+      const current = componentCurrent?.currentAmps ?? (component.type === "wire" ? deriveWireCurrent(component.id, solution.componentCurrents) : null);
+      if (current != null) {
+        maxCurrent = Math.max(maxCurrent, Math.abs(current));
+      }
+    }
+
+    return {
+      voltageThreshold: maxVoltage * DISPLAY_ZERO_RELATIVE_TOLERANCE,
+      currentThreshold: maxCurrent * DISPLAY_ZERO_RELATIVE_TOLERANCE,
+    };
+  } catch {
+    return { voltageThreshold: 0, currentThreshold: 0 };
+  }
+}
+
+function zeroTinyVoltage(voltage: number): number {
+  return Math.abs(voltage) < displayZeroContext.voltageThreshold ? 0 : voltage;
+}
+
+function zeroTinyCurrent(current: number): number {
+  return Math.abs(current) < displayZeroContext.currentThreshold ? 0 : current;
 }
 
 function resistanceBetween(positiveNode: string, negativeNode: string): number | null {
