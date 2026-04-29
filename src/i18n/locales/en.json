@@ -114,6 +114,19 @@
       "emptyState": "Place a resistor, battery, wire, or ground to start.",
       "noGround": "Place a battery or set a ground node to solve the circuit."
     },
+    "phasorDiagram": {
+      "title": "Phasor Diagrams",
+      "description": "Here you can explore the relationship between a rotating voltage phasor and the sinusoidal waveform it represents.",
+      "controlsTitle": "Alternating current",
+      "amplitude": "Amplitude",
+      "frequency": "Frequency",
+      "phase": "Phase",
+      "time": "Time",
+      "play": "Animate time",
+      "pause": "Stop time (t=0)",
+      "formulaHint": "The phasor length is the amplitude. Its vertical projection is the instantaneous voltage.",
+      "diagramLabel": "Interactive phasor diagram linked to a sinusoidal voltage graph"
+    },
     "rlcCircuit": {
       "title": "RLC Circuit",
       "description": "Explore a series resistor, capacitor, and inductor driven by an AC voltage. Compare the source voltage with the resistor voltage on an oscilloscope.",

@@ -114,6 +114,19 @@
       "emptyState": "Placera en resistor, ett batteri, en ledning eller jord för att börja.",
       "noGround": "Placera ett batteri eller ange en jordnod för att lösa kretsen."
     },
+    "phasorDiagram": {
+      "title": "Visardiagram",
+      "description": "Här kan du utforska sambandet mellan en roterande spänningsvisare och sinuskurvan som den beskriver.",
+      "controlsTitle": "Växelströmmen",
+      "amplitude": "Amplitud",
+      "frequency": "Frekvens",
+      "phase": "Fas",
+      "time": "Tid",
+      "play": "Animera tiden",
+      "pause": "Stoppa tiden (t=0)",
+      "formulaHint": "Visarens längd är amplituden. Den vertikala projektionen är momentanvärdet.",
+      "diagramLabel": "Interaktivt visardiagram kopplat till en sinusformad spänningsgraf"
+    },
     "rlcCircuit": {
       "title": "RLC-krets",
       "description": "Utforska en seriekopplad resistor, kondensator och spole som drivs av en växelspänning. Jämför källspänningen med spänningen över resistorn på ett oscilloskop.",

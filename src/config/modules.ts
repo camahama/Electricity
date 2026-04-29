@@ -1,6 +1,7 @@
 import { renderCircuitBuilderModule } from "../modules/circuit-builder/index.js";
 import { renderElectrostaticsModule } from "../modules/electrostatics/index.js";
 import { renderElectrostaticsMaterialsModule } from "../modules/electrostatics-materials/index.js";
+import { renderPhasorDiagramModule } from "../modules/phasor-diagram/index.js";
 import { renderRlcCircuitModule } from "../modules/rlc-circuit/index.js";
 import { renderThreePhaseModule } from "../modules/three-phase/index.js";
 
@@ -32,6 +33,11 @@ export const moduleRegistry: ModuleDefinition[] = [
     slug: "circuit-builder",
     titleKey: "modules.circuitBuilder.title",
     render: renderCircuitBuilderModule,
+  },
+  {
+    slug: "phasor-diagram",
+    titleKey: "modules.phasorDiagram.title",
+    render: renderPhasorDiagramModule,
   },
   {
     slug: "rlc-circuit",
