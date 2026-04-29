@@ -19,8 +19,8 @@
     "electrostatics": {
       "title": "Electro-statics",
       "description": "Place positive and negative point charges on the board to build an electrostatic scene.",
-      "controlsTitle": "Charge Controls",
-      "instructions": "Choose a charge type, then click on the board to place it. Clicking an existing charge adds +1 or -1 depending on the selected button, and dragging lets you move it.",
+      "controlsTitle": "Charges",
+      "instructions": "Choose a charge polarity, then click on the board to place it. Clicking an existing charge adds +1 or -1 depending on the selected button, and dragging lets you move it.",
       "positiveCharge": "Place + charge",
       "negativeCharge": "Place - charge",
       "resetCharges": "Clear charges",
