@@ -23,14 +23,10 @@
       "instructions": "Välj laddningstyp och klicka sedan på ytan för att placera den. Om du klickar på en befintlig laddning läggs +1 eller -1 till beroende på vald knapp, och genom att dra kan du flytta den.",
       "positiveCharge": "Placera + laddning",
       "negativeCharge": "Placera - laddning",
-      "resetCharges": "Rensa laddningar",
+      "resetCharges": "Rensa alla laddningar",
       "presetsTitle": "Standardkonfigurationer",
       "presetPlateCapacitor": "Plattkondensator",
       "presetDipole": "Dipol",
-      "selectionStatus": "Valt verktyg: {charge}",
-      "emptyState": "Inga laddningar placerade ännu.",
-      "chargeCount": "Laddningar: {count}",
-      "netCharge": "Nettoladdning: {charge}",
       "boardTitle": "Potentiallandskap",
       "fieldProbeToggle": "Aktivera fältprob",
       "boardHint": "Klicka för att placera laddningar, klicka igen för att ändra laddning ±1 och dra för att flytta.",
@@ -151,6 +147,6 @@
     }
   },
   "common": {
-    "backToMenu": "Tillbaka till menyn"
+    "menuButton": "MENY"
   }
 }

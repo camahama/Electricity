@@ -155,8 +155,8 @@ export function renderElectrostaticsModule({ t }) {
 
   const backLink = document.createElement("a");
   backLink.href = "#/";
-  backLink.className = "back-link";
-  backLink.textContent = t("common.backToMenu");
+  backLink.className = "module-menu-button";
+  backLink.textContent = t("common.menuButton");
 
   const title = document.createElement("h1");
   title.className = "module-title";
@@ -174,6 +174,9 @@ export function renderElectrostaticsModule({ t }) {
 
   const intro = document.createElement("div");
   intro.className = "module-intro";
+
+  const introInfo = document.createElement("div");
+  introInfo.className = "module-header-info";
 
   const controls = document.createElement("aside");
   controls.className = "electrostatics-controls";
@@ -222,12 +225,6 @@ export function renderElectrostaticsModule({ t }) {
   dipoleButton.type = "button";
   dipoleButton.className = "preset-button";
   dipoleButton.textContent = t("modules.electrostatics.presetDipole");
-
-  const status = document.createElement("p");
-  status.className = "electrostatics-status";
-
-  const summary = document.createElement("div");
-  summary.className = "charge-summary";
 
   const board = document.createElement("section");
   board.className = "electrostatics-board";
@@ -430,37 +427,6 @@ export function renderElectrostaticsModule({ t }) {
     negativeButton.classList.toggle("active", electrostaticsState.selectedChargeSign < 0);
   }
 
-  function updateSummary() {
-    const totalCharge = electrostaticsState.charges.reduce(
-      (sum, charge) => sum + charge.charge,
-      0,
-    );
-
-    status.textContent = t("modules.electrostatics.selectionStatus", {
-      charge:
-        electrostaticsState.selectedChargeSign > 0
-          ? t("modules.electrostatics.positiveCharge")
-          : t("modules.electrostatics.negativeCharge"),
-    });
-
-    if (electrostaticsState.charges.length === 0) {
-      summary.textContent = t("modules.electrostatics.emptyState");
-      return;
-    }
-
-    const chargeDescriptions = electrostaticsState.charges
-      .map((charge, index) => (
-        `${index + 1}. q=${charge.charge} (${Math.round(charge.x)}, ${Math.round(charge.y)})`
-      ))
-      .join("\n");
-
-    summary.textContent = [
-      t("modules.electrostatics.chargeCount", { count: electrostaticsState.charges.length }),
-      t("modules.electrostatics.netCharge", { charge: totalCharge }),
-      chargeDescriptions,
-    ].join("\n");
-  }
-
   function redrawCanvas() {
     renderLiveField();
     electrostaticsState.charges.forEach(drawCharge);
@@ -487,13 +453,11 @@ export function renderElectrostaticsModule({ t }) {
     }
 
     redrawCanvas();
-    updateSummary();
   }
 
   function loadPreset(charges) {
     electrostaticsState.charges = charges.map((charge) => ({ ...charge }));
     redrawCanvas();
-    updateSummary();
   }
 
   function clampCanvasCoordinate(value) {
@@ -523,19 +487,16 @@ export function renderElectrostaticsModule({ t }) {
   positiveButton.addEventListener("click", () => {
     electrostaticsState.selectedChargeSign = 1;
     updateSelectionButtons();
-    updateSummary();
   });
 
   negativeButton.addEventListener("click", () => {
     electrostaticsState.selectedChargeSign = -1;
     updateSelectionButtons();
-    updateSummary();
   });
 
   resetButton.addEventListener("click", () => {
     electrostaticsState.charges = [];
     redrawCanvas();
-    updateSummary();
   });
 
   probeToggle.addEventListener("change", () => {
@@ -597,7 +558,6 @@ export function renderElectrostaticsModule({ t }) {
     pointerState.draggedCharge.y = y;
     canvas.classList.add("is-dragging");
     redrawCanvas();
-    updateSummary();
   });
 
   canvas.addEventListener("pointerup", (event) => {
@@ -641,7 +601,6 @@ export function renderElectrostaticsModule({ t }) {
 
   updateSelectionButtons();
   redrawCanvas();
-  updateSummary();
 
   selectionGroup.append(positiveButton, negativeButton);
   presetButtons.append(plateCapacitorButton, dipoleButton);
@@ -654,16 +613,15 @@ export function renderElectrostaticsModule({ t }) {
     resetButton,
     presetTitle,
     presetButtons,
-    status,
-    summary,
   );
   boardHeader.append(boardTitle, boardToolbar);
   canvasFrame.append(canvas);
   board.append(boardHeader, canvasFrame, boardHint);
-  intro.append(title, description);
+  introInfo.append(description, backLink);
+  intro.append(title, introInfo);
   sidebar.append(intro, controls);
   layout.append(sidebar, board);
-  content.append(backLink, layout);
+  content.append(layout);
   page.append(content);
 
   return page;

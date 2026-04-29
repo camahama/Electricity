@@ -144,9 +144,46 @@ button {
   padding-left: 1.25rem;
 }
 
-.module-link,
-.back-link {
+.module-link {
   font-size: 1.05rem;
+}
+
+.module-header-info {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+}
+
+.module-header-info .module-description {
+  margin: 0;
+}
+
+.module-menu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.75rem;
+  min-height: 2.4rem;
+  padding: 0.55rem 0.95rem;
+  border: 1px solid rgba(15, 109, 140, 0.22);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--accent-strong);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+  box-shadow: 0 8px 20px rgba(19, 34, 56, 0.08);
+}
+
+.module-menu-button:hover,
+.module-menu-button:focus-visible {
+  border-color: transparent;
+  background: var(--accent);
+  color: #ffffff;
 }
 
 .package-credit {
@@ -739,8 +776,7 @@ button {
 }
 
 .electrostatics-help,
-.electrostatics-board-hint,
-.electrostatics-status {
+.electrostatics-board-hint {
   margin: 0 0 1rem;
   color: var(--text-secondary);
   line-height: 1.5;
@@ -814,21 +850,6 @@ button {
 .materials-remove-button.active {
   background: #7f1d1d;
   color: #ffffff;
-}
-
-.charge-summary {
-  margin: 0;
-  padding: 1rem;
-  height: 10.5rem;
-  white-space: pre-wrap;
-  overflow-y: auto;
-  background: #f5f8fc;
-  border: 1px solid rgba(28, 53, 87, 0.08);
-  border-radius: 16px;
-  color: var(--text-secondary);
-  font-family: ui-monospace, "SFMono-Regular", monospace;
-  font-size: 0.94rem;
-  line-height: 1.45;
 }
 
 .electrostatics-canvas-frame {
@@ -1532,10 +1553,6 @@ button {
   padding: clamp(1rem, 2vw, 1.5rem);
 }
 
-.three-phase-page .back-link {
-  color: #8fd6ff;
-}
-
 .three-phase-header .module-title {
   margin: 0.5rem 0 0.35rem;
   font-size: clamp(1.7rem, 2.6vw, 3rem);
@@ -1564,9 +1581,18 @@ button {
   align-items: end;
 }
 
-.three-phase-header .back-link {
-  display: inline-block;
-  margin: 0;
+.three-phase-page .module-menu-button {
+  border-color: rgba(143, 214, 255, 0.25);
+  background: rgba(143, 214, 255, 0.08);
+  color: #8fd6ff;
+  box-shadow: none;
+}
+
+.three-phase-page .module-menu-button:hover,
+.three-phase-page .module-menu-button:focus-visible {
+  border-color: rgba(143, 214, 255, 0.45);
+  background: rgba(143, 214, 255, 0.18);
+  color: #ffffff;
 }
 
 .three-phase-main-layout {

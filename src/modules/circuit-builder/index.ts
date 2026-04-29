@@ -81,13 +81,15 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
   const content = element("section", "module-page module-page-wide circuit-builder-page");
   const backLink = document.createElement("a");
   backLink.href = "#/";
-  backLink.className = "back-link";
-  backLink.textContent = t("common.backToMenu");
+  backLink.className = "module-menu-button";
+  backLink.textContent = t("common.menuButton");
 
   const header = element("header", "circuit-builder-header");
+  const headerInfo = element("div", "module-header-info");
+  headerInfo.append(element("p", "module-description", t("modules.circuitBuilder.description")), backLink);
   header.append(
     element("h1", "module-title", t("modules.circuitBuilder.title")),
-    element("p", "module-description", t("modules.circuitBuilder.description")),
+    headerInfo,
   );
 
   const layout = element("div", "circuit-builder-layout");
@@ -596,7 +598,7 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
 
   boardPanel.append(svg, results);
   layout.append(controls, boardPanel);
-  content.append(backLink, header, layout);
+  content.append(header, layout);
   page.append(content);
   update();
 

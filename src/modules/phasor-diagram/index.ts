@@ -37,13 +37,15 @@ export function renderPhasorDiagramModule({ t }: ModuleRenderContext): HTMLEleme
   const content = element("section", "module-page module-page-wide phasor-page");
   const backLink = document.createElement("a");
   backLink.href = "#/";
-  backLink.className = "back-link";
-  backLink.textContent = t("common.backToMenu");
+  backLink.className = "module-menu-button";
+  backLink.textContent = t("common.menuButton");
 
   const header = element("header", "phasor-header");
+  const headerInfo = element("div", "module-header-info");
+  headerInfo.append(element("p", "module-description", t("modules.phasorDiagram.description")), backLink);
   header.append(
     element("h1", "module-title", t("modules.phasorDiagram.title")),
-    element("p", "module-description", t("modules.phasorDiagram.description")),
+    headerInfo,
   );
 
   const layout = element("div", "phasor-layout");
@@ -420,7 +422,7 @@ export function renderPhasorDiagramModule({ t }: ModuleRenderContext): HTMLEleme
 
   stage.append(svg);
   layout.append(controls, stage);
-  content.append(backLink, header, layout);
+  content.append(header, layout);
   page.append(content);
   update();
 

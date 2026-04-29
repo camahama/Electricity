@@ -330,8 +330,8 @@ export function renderElectrostaticsMaterialsModule({ t }) {
 
   const backLink = document.createElement("a");
   backLink.href = "#/";
-  backLink.className = "back-link";
-  backLink.textContent = t("common.backToMenu");
+  backLink.className = "module-menu-button";
+  backLink.textContent = t("common.menuButton");
 
   const title = document.createElement("h1");
   title.className = "module-title";
@@ -349,6 +349,9 @@ export function renderElectrostaticsMaterialsModule({ t }) {
 
   const intro = document.createElement("div");
   intro.className = "module-intro";
+
+  const introInfo = document.createElement("div");
+  introInfo.className = "module-header-info";
 
   const controls = document.createElement("aside");
   controls.className = "electrostatics-controls";
@@ -862,10 +865,11 @@ export function renderElectrostaticsMaterialsModule({ t }) {
   );
   canvasFrame.append(canvas);
   board.append(boardTitle, canvasFrame, boardHint);
-  intro.append(title, description);
+  introInfo.append(description, backLink);
+  intro.append(title, introInfo);
   sidebar.append(intro, controls);
   layout.append(sidebar, board);
-  content.append(backLink, layout);
+  content.append(layout);
   page.append(content);
 
   return page;

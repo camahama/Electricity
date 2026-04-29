@@ -88,13 +88,12 @@ export function renderThreePhaseModule({ t, language = "en" }: ModuleRenderConte
   const headerText = element("div", "three-phase-header-text");
   const backLink = document.createElement("a");
   backLink.href = "#/";
-  backLink.className = "back-link";
-  backLink.textContent = t("common.backToMenu");
-  headerText.append(
-    backLink,
-    element("h1", "module-title", t("modules.threePhase.title")),
-  );
+  backLink.className = "module-menu-button";
+  backLink.textContent = t("common.menuButton");
+  headerText.append(element("h1", "module-title", t("modules.threePhase.title")));
   const headerDescription = element("p", "module-description", t("modules.threePhase.description"));
+  const headerInfo = element("div", "module-header-info");
+  headerInfo.append(headerDescription, backLink);
 
   const mainLayout = element("div", "three-phase-main-layout");
   const leftColumn = element("div", "three-phase-left-column");
@@ -232,7 +231,7 @@ export function renderThreePhaseModule({ t, language = "en" }: ModuleRenderConte
   );
 
   controlsPanel.append(slidersColumn);
-  header.append(headerText, headerDescription);
+  header.append(headerText, headerInfo);
   leftColumn.append(controlsPanel);
   controlsPanel.append(diagram.figure);
   visualizationStage.append(runButton, svgMount);

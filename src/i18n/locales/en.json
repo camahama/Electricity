@@ -23,14 +23,10 @@
       "instructions": "Choose a charge polarity, then click on the board to place it. Clicking an existing charge adds +1 or -1 depending on the selected button, and dragging lets you move it.",
       "positiveCharge": "Place + charge",
       "negativeCharge": "Place - charge",
-      "resetCharges": "Clear charges",
+      "resetCharges": "Clear all charges",
       "presetsTitle": "Standard Configurations",
       "presetPlateCapacitor": "Plate capacitor",
       "presetDipole": "Dipole",
-      "selectionStatus": "Selected tool: {charge}",
-      "emptyState": "No charges placed yet.",
-      "chargeCount": "Charges: {count}",
-      "netCharge": "Net charge: {charge}",
       "boardTitle": "Potential landscape",
       "fieldProbeToggle": "Enable field probe",
       "boardHint": "Click to place a charge, click again to add charge ±1, and drag to move.",
@@ -151,6 +147,6 @@
     }
   },
   "common": {
-    "backToMenu": "Back to menu"
+    "menuButton": "MENU"
   }
 }
