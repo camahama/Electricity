@@ -675,10 +675,30 @@ button {
   white-space: nowrap;
 }
 
+.electrostatics-page {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.electrostatics-header {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.9fr) minmax(18rem, 1fr);
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.electrostatics-header .module-title {
+  font-size: clamp(2.1rem, 4vw, 3.6rem);
+}
+
+.electrostatics-header .module-description {
+  margin: 0;
+}
+
 .electrostatics-layout {
   display: grid;
-  grid-template-columns: minmax(240px, 290px) minmax(0, 1fr);
-  gap: 2rem;
+  grid-template-columns: minmax(240px, 290px) minmax(900px, 1fr);
+  gap: 1.25rem;
   align-items: start;
 }
 
@@ -863,9 +883,10 @@ button {
 
 .electrostatics-canvas {
   display: block;
-  width: 100%;
-  max-width: 760px;
+  width: min(900px, 100%);
+  max-width: none;
   height: auto;
+  aspect-ratio: 9 / 7;
   border-radius: 14px;
   background: #fbfcfe;
   border: 1px solid rgba(28, 53, 87, 0.08);
@@ -1963,6 +1984,7 @@ button {
 }
 
 @media (max-width: 960px) {
+  .electrostatics-header,
   .electrostatics-layout {
     grid-template-columns: 1fr;
   }

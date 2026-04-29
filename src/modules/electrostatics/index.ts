@@ -7,7 +7,8 @@ import {
 import { createFieldLineOverlayFromPotentialGrid } from "./visualization/fieldLineOverlay.js";
 import { createEquipotentialOverlay } from "./visualization/equipotentialOverlay.js";
 
-const GRID_SIZE = 750;
+const GRID_WIDTH = 900;
+const GRID_HEIGHT = 700;
 const BASE_CHARGE_RADIUS = 18;
 const HEATMAP_POSITIVE = [220, 50, 47];
 const HEATMAP_NEGATIVE = [38, 93, 171];
@@ -50,10 +51,10 @@ function blendColors(baseColor, overlayColor, opacity) {
 }
 
 function createDisplayPotentialGrid(pointCharges) {
-  const grid = Array.from({ length: GRID_SIZE }, () => new Array(GRID_SIZE));
+  const grid = Array.from({ length: GRID_HEIGHT }, () => new Array(GRID_WIDTH));
 
-  for (let y = 0; y < GRID_SIZE; y += 1) {
-    for (let x = 0; x < GRID_SIZE; x += 1) {
+  for (let y = 0; y < GRID_HEIGHT; y += 1) {
+    for (let x = 0; x < GRID_WIDTH; x += 1) {
       let potential = 0;
 
       for (const pointCharge of pointCharges) {
@@ -117,10 +118,10 @@ function colorForPotential(value, displayCutoff) {
 
 function createPlateCapacitorPreset() {
   const charges = [];
-  const positiveX = Math.round(GRID_SIZE * 0.3);
-  const negativeX = Math.round(GRID_SIZE * 0.7);
-  const startY = Math.round(GRID_SIZE * 0.18);
-  const spacingY = Math.round(GRID_SIZE * 0.045);
+  const positiveX = Math.round(GRID_WIDTH * 0.3);
+  const negativeX = Math.round(GRID_WIDTH * 0.7);
+  const startY = Math.round(GRID_HEIGHT * 0.18);
+  const spacingY = Math.round(GRID_HEIGHT * 0.045);
 
   for (let index = 0; index < 15; index += 1) {
     const y = startY + spacingY * index;
@@ -134,13 +135,13 @@ function createPlateCapacitorPreset() {
 function createDipolePreset() {
   return [
     {
-      x: Math.round(GRID_SIZE * 0.47),
-      y: Math.round(GRID_SIZE * 0.5),
+      x: Math.round(GRID_WIDTH * 0.47),
+      y: Math.round(GRID_HEIGHT * 0.5),
       charge: -1,
     },
     {
-      x: Math.round(GRID_SIZE * 0.53),
-      y: Math.round(GRID_SIZE * 0.5),
+      x: Math.round(GRID_WIDTH * 0.53),
+      y: Math.round(GRID_HEIGHT * 0.5),
       charge: 1,
     },
   ];
@@ -151,7 +152,7 @@ export function renderElectrostaticsModule({ t }) {
   page.className = "page-shell";
 
   const content = document.createElement("section");
-  content.className = "module-page module-page-wide";
+  content.className = "module-page module-page-wide electrostatics-page";
 
   const backLink = document.createElement("a");
   backLink.href = "#/";
@@ -166,17 +167,17 @@ export function renderElectrostaticsModule({ t }) {
   description.className = "module-description";
   description.textContent = t("modules.electrostatics.description");
 
+  const header = document.createElement("header");
+  header.className = "electrostatics-header";
+
+  const headerInfo = document.createElement("div");
+  headerInfo.className = "module-header-info";
+
   const layout = document.createElement("div");
   layout.className = "electrostatics-layout";
 
   const sidebar = document.createElement("div");
   sidebar.className = "electrostatics-sidebar";
-
-  const intro = document.createElement("div");
-  intro.className = "module-intro";
-
-  const introInfo = document.createElement("div");
-  introInfo.className = "module-header-info";
 
   const controls = document.createElement("aside");
   controls.className = "electrostatics-controls";
@@ -255,8 +256,8 @@ export function renderElectrostaticsModule({ t }) {
 
   const canvas = document.createElement("canvas");
   canvas.className = "electrostatics-canvas";
-  canvas.width = GRID_SIZE;
-  canvas.height = GRID_SIZE;
+  canvas.width = GRID_WIDTH;
+  canvas.height = GRID_HEIGHT;
   canvas.setAttribute("aria-label", t("modules.electrostatics.canvasLabel"));
 
   const boardHint = document.createElement("p");
@@ -272,19 +273,21 @@ export function renderElectrostaticsModule({ t }) {
 
   function drawGridBackground() {
     context.fillStyle = "#fbfcfe";
-    context.fillRect(0, 0, GRID_SIZE, GRID_SIZE);
+    context.fillRect(0, 0, GRID_WIDTH, GRID_HEIGHT);
 
-    for (let index = 0; index <= GRID_SIZE; index += 50) {
+    for (let index = 0; index <= GRID_WIDTH; index += 50) {
       context.beginPath();
       context.strokeStyle = index % 100 === 0 ? "#d6deea" : "#e8edf5";
       context.lineWidth = 1;
       context.moveTo(index + 0.5, 0);
-      context.lineTo(index + 0.5, GRID_SIZE);
+      context.lineTo(index + 0.5, GRID_HEIGHT);
       context.stroke();
+    }
 
+    for (let index = 0; index <= GRID_HEIGHT; index += 50) {
       context.beginPath();
       context.moveTo(0, index + 0.5);
-      context.lineTo(GRID_SIZE, index + 0.5);
+      context.lineTo(GRID_WIDTH, index + 0.5);
       context.stroke();
     }
   }
@@ -316,11 +319,11 @@ export function renderElectrostaticsModule({ t }) {
       dashLength: 5,
       thickness: 1,
     });
-    const imageData = context.createImageData(GRID_SIZE, GRID_SIZE);
+    const imageData = context.createImageData(GRID_WIDTH, GRID_HEIGHT);
     let offset = 0;
 
-    for (let y = 0; y < GRID_SIZE; y += 1) {
-      for (let x = 0; x < GRID_SIZE; x += 1) {
+    for (let y = 0; y < GRID_HEIGHT; y += 1) {
+      for (let x = 0; x < GRID_WIDTH; x += 1) {
         let color = colorForPotential(displayGrid[y][x], displayCutoff);
 
         if (fieldLineOverlay[y][x]) {
@@ -461,7 +464,7 @@ export function renderElectrostaticsModule({ t }) {
   }
 
   function clampCanvasCoordinate(value) {
-    return clamp(Math.round(value), 0, GRID_SIZE - 1);
+    return Math.round(value);
   }
 
   function getCanvasPoint(event) {
@@ -470,8 +473,8 @@ export function renderElectrostaticsModule({ t }) {
     const scaleY = canvas.height / rect.height;
 
     return {
-      x: clampCanvasCoordinate((event.clientX - rect.left) * scaleX),
-      y: clampCanvasCoordinate((event.clientY - rect.top) * scaleY),
+      x: clamp(clampCanvasCoordinate((event.clientX - rect.left) * scaleX), 0, GRID_WIDTH - 1),
+      y: clamp(clampCanvasCoordinate((event.clientY - rect.top) * scaleY), 0, GRID_HEIGHT - 1),
     };
   }
 
@@ -617,11 +620,11 @@ export function renderElectrostaticsModule({ t }) {
   boardHeader.append(boardTitle, boardToolbar);
   canvasFrame.append(canvas);
   board.append(boardHeader, canvasFrame, boardHint);
-  introInfo.append(description, backLink);
-  intro.append(title, introInfo);
-  sidebar.append(intro, controls);
+  headerInfo.append(description, backLink);
+  header.append(title, headerInfo);
+  sidebar.append(controls);
   layout.append(sidebar, board);
-  content.append(layout);
+  content.append(header, layout);
   page.append(content);
 
   return page;
