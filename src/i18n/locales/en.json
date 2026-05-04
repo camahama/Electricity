@@ -54,7 +54,7 @@
     },
     "threePhase": {
       "title": "Three-Phase Simulator",
-      "description": "Adjust Y and delta loads, then compare branch currents, line currents, neutral current, phasors, and waveforms.",
+      "description": "Adjust Y and delta loads, then compare branch currents. Compare line currents, neutral current, phasors, and waveforms. Click the circuit diagram to expand it, and hover over a load to see its current.",
       "phaseLoadsHeading": "Phase Loads (Y)",
       "lineLoadsHeading": "Line Loads (∆)",
       "p1Suffix": " (L1-N)",
