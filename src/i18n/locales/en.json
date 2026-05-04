@@ -125,7 +125,7 @@
     },
     "rlcCircuit": {
       "title": "RLC Circuit",
-      "description": "Explore a series resistor, capacitor, and inductor driven by an AC voltage. Compare the source voltage with the resistor voltage on an oscilloscope.",
+      "description": "Explore a series resistor, capacitor, and inductor driven by an AC voltage. Compare selectable voltages on an oscilloscope.",
       "controlsTitle": "Circuit values",
       "scopeControls": "Oscilloscope",
       "resistance": "Resistance R",
@@ -135,6 +135,8 @@
       "frequency": "Frequency f",
       "timeScale": "Time",
       "voltageScale": "Voltage",
+      "channel1": "CH1",
+      "channel2": "CH2",
       "startTime": "Start time (1:100)",
       "stopTime": "Stop time (t=0)",
       "expandDiagram": "Expand RLC circuit diagram",
@@ -142,7 +144,7 @@
       "current": "Current amplitude",
       "phase": "Current phase",
       "resonance": "Resonance",
-      "scopeLabel": "Oscilloscope showing source voltage and resistor voltage in a series RLC circuit",
+      "scopeLabel": "Oscilloscope showing two selectable voltage channels in a series RLC circuit",
       "phasorLabel": "Phasor diagram showing resistor, capacitor, inductor, and source voltage"
     }
   },

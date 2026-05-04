@@ -12,17 +12,26 @@ const SCOPE_SIZE = 460;
 const PHASOR_WIDTH = 360;
 const PHASOR_HEIGHT = 460;
 const TIME_SCALE_STEPS = [0.5e-3, 1e-3, 2e-3, 5e-3, 10e-3, 20e-3, 50e-3];
-const VOLTAGE_SCALE_STEPS = [0.5, 1, 2, 5, 10, 20, 50];
-const RESISTANCE_STEPS = [0, 10, 20, 50, 100, 200, 500, 1000];
+const VOLTAGE_SCALE_STEPS = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50];
+const RESISTANCE_STEPS = [0, 1, 10, 20, 50, 100, 200, 500, 1000];
 const INDUCTANCE_STEPS = [0, 10, 20, 50, 100, 200, 500, 1000];
 const CAPACITANCE_STEPS = [0, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, Infinity];
 const SOURCE_VOLTAGE_STEPS = [1, 2, 5, 10, 20, 50];
 const ANIMATION_SLOWDOWN = 100;
 const SCOPE_SAMPLES_PER_PERIOD = 64;
 const SCOPE_MAX_SAMPLES = 6000;
-const SCOPE_TRACE_OPTIONS = ["R", "L", "C"] as const;
+const SCOPE_TRACE_OPTIONS = ["source", "R", "L", "C"] as const;
 
 type ScopeTrace = (typeof SCOPE_TRACE_OPTIONS)[number];
+type ScopeChannel = "channel1" | "channel2";
+type ScopeTraceDetails = {
+  amplitude: number;
+  subscript: string | null;
+  voltageAt: (time: number) => number;
+  waveClass: string;
+  legendClass: string;
+  labelClass: string;
+};
 
 type RlcState = {
   resistance: number;
@@ -31,11 +40,13 @@ type RlcState = {
   sourceVoltage: number;
   frequency: number;
   timeScale: number;
-  voltageScale: number;
+  channel1VoltageScale: number;
+  channel2VoltageScale: number;
   diagramExpanded: boolean;
   timeRunning: boolean;
   animationTime: number;
-  scopeTrace: ScopeTrace;
+  channel1Trace: ScopeTrace;
+  channel2Trace: ScopeTrace;
 };
 
 const state: RlcState = {
@@ -45,11 +56,13 @@ const state: RlcState = {
   sourceVoltage: 10,
   frequency: 50,
   timeScale: 5e-3,
-  voltageScale: 5,
+  channel1VoltageScale: 5,
+  channel2VoltageScale: 5,
   diagramExpanded: false,
   timeRunning: false,
   animationTime: 0,
-  scopeTrace: "R",
+  channel1Trace: "source",
+  channel2Trace: "R",
 };
 
 export function renderRlcCircuitModule({ t, language = "en" }: ModuleRenderContext): HTMLElement {
@@ -121,8 +134,8 @@ export function renderRlcCircuitModule({ t, language = "en" }: ModuleRenderConte
     updateDiagrams();
   }
 
-  function updateScopeTrace(trace: ScopeTrace) {
-    state.scopeTrace = trace;
+  function updateScopeTrace(channel: ScopeChannel, trace: ScopeTrace) {
+    setChannelTrace(channel, trace);
     renderScopeKnobs();
     updateDiagrams();
   }
@@ -203,11 +216,13 @@ export function renderRlcCircuitModule({ t, language = "en" }: ModuleRenderConte
   function renderScope() {
     svg.replaceChildren();
     const model = computeRlcModel(state);
-    const selectedTrace = scopeTraceDetails(model);
-    const plot = { x: 44, y: 28, width: 370, height: 370 };
+    const channel1 = scopeTraceDetails(model, state.channel1Trace);
+    const channel2 = scopeTraceDetails(model, state.channel2Trace);
+    const plot = { x: 44, y: 28, width: 370, height: 350 };
     const centerY = plot.y + plot.height / 2;
     const totalTime = state.timeScale * 10;
-    const voltsPerPixel = state.voltageScale / (plot.height / 8);
+    const channel1VoltsPerPixel = state.channel1VoltageScale / (plot.height / 8);
+    const channel2VoltsPerPixel = state.channel2VoltageScale / (plot.height / 8);
 
     appendRect(svg, plot.x, plot.y, plot.width, plot.height, "rlc-scope-screen");
     for (let index = 0; index <= 10; index += 1) {
@@ -220,36 +235,24 @@ export function renderRlcCircuitModule({ t, language = "en" }: ModuleRenderConte
     }
     appendLine(svg, plot.x, centerY, plot.x + plot.width, centerY, "rlc-scope-axis");
 
-    const sourcePath: string[] = [];
-    const selectedPath: string[] = [];
+    const channel1Path: string[] = [];
+    const channel2Path: string[] = [];
     const visiblePeriods = Math.max(1, model.frequency * totalTime);
     const sampleCount = Math.min(SCOPE_MAX_SAMPLES, Math.ceil(Math.max(plot.width, visiblePeriods * SCOPE_SAMPLES_PER_PERIOD)));
     for (let index = 0; index <= sampleCount; index += 1) {
       const fraction = index / sampleCount;
       const tValue = fraction * totalTime + state.animationTime;
       const x = plot.x + plot.width * fraction;
-      const sourceY = centerY - finiteVoltage(sourceVoltageAt(model, tValue)) / voltsPerPixel;
-      const selectedY = centerY - finiteVoltage(selectedTrace.voltageAt(tValue)) / voltsPerPixel;
-      sourcePath.push(`${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${sourceY.toFixed(2)}`);
-      selectedPath.push(`${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${selectedY.toFixed(2)}`);
+      const channel1Y = centerY - finiteVoltage(channel1.voltageAt(tValue)) / channel1VoltsPerPixel;
+      const channel2Y = centerY - finiteVoltage(channel2.voltageAt(tValue)) / channel2VoltsPerPixel;
+      channel1Path.push(`${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${channel1Y.toFixed(2)}`);
+      channel2Path.push(`${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${channel2Y.toFixed(2)}`);
     }
 
-    appendPath(svg, sourcePath.join(" "), "rlc-wave-source");
-    appendPath(svg, selectedPath.join(" "), selectedTrace.waveClass);
-    const legendY = plot.y + plot.height + 30;
-    appendLine(svg, plot.x, legendY - 5, plot.x + 28, legendY - 5, "rlc-scope-legend-source");
-    svg.append(richScopeLabel(plot.x + 38, legendY, "Û", null, "", `: ${formatNumber(state.sourceVoltage)} V`, "rlc-scope-label source"));
-    const selectedLabel = richScopeLabel(
-      plot.x + 204,
-      legendY,
-      "Û",
-      selectedTrace.subscript,
-      "",
-      `: ${formatNumber(selectedTrace.amplitude)} V`,
-      selectedTrace.labelClass,
-    );
-    appendLine(svg, plot.x + 166, legendY - 5, plot.x + 194, legendY - 5, selectedTrace.legendClass);
-    svg.append(selectedLabel);
+    appendPath(svg, channel1Path.join(" "), channel1.waveClass);
+    appendPath(svg, channel2Path.join(" "), channel2.waveClass);
+    appendScopeLegend(svg, plot.x, plot.y + plot.height + 30, t("modules.rlcCircuit.channel1"), channel1);
+    appendScopeLegend(svg, plot.x + 188, plot.y + plot.height + 30, t("modules.rlcCircuit.channel2"), channel2);
   }
 
   function renderScopeKnobs() {
@@ -258,16 +261,23 @@ export function renderRlcCircuitModule({ t, language = "en" }: ModuleRenderConte
         state.timeScale = value;
         updateKnobs();
       }, (value) => `${formatNumber(value * 1000)} ms/div`),
-      knob(t("modules.rlcCircuit.voltageScale"), state.voltageScale, VOLTAGE_SCALE_STEPS, (value) => {
-        state.voltageScale = value;
-        updateKnobs();
-      }, (value) => `${formatNumber(value)} V/div`),
-      scopeTraceToggle(),
+      scopeChannelControl("channel1", t("modules.rlcCircuit.channel1")),
+      scopeChannelControl("channel2", t("modules.rlcCircuit.channel2")),
     );
   }
 
-  function scopeTraceDetails(model: SeriesRlcModel) {
-    if (state.scopeTrace === "L") {
+  function scopeTraceDetails(model: SeriesRlcModel, trace: ScopeTrace): ScopeTraceDetails {
+    if (trace === "source") {
+      return {
+        amplitude: model.sourceVoltageAmplitude,
+        subscript: null,
+        voltageAt: (time: number) => sourceVoltageAt(model, time),
+        waveClass: "rlc-wave-source",
+        legendClass: "rlc-scope-legend-source",
+        labelClass: "rlc-scope-label source",
+      };
+    }
+    if (trace === "L") {
       return {
         amplitude: model.inductorVoltageAmplitude,
         subscript: "L",
@@ -277,7 +287,7 @@ export function renderRlcCircuitModule({ t, language = "en" }: ModuleRenderConte
         labelClass: "rlc-scope-label inductor",
       };
     }
-    if (state.scopeTrace === "C") {
+    if (trace === "C") {
       return {
         amplitude: model.capacitorVoltageAmplitude,
         subscript: "C",
@@ -297,20 +307,57 @@ export function renderRlcCircuitModule({ t, language = "en" }: ModuleRenderConte
     };
   }
 
-  function scopeTraceToggle() {
+  function scopeChannelControl(channel: ScopeChannel, labelText: string) {
+    const wrapper = element("div", "rlc-channel-control");
+    wrapper.append(
+      element("span", "rlc-channel-label", labelText),
+      knob(null, channelVoltageScale(channel), VOLTAGE_SCALE_STEPS, (value) => {
+        setChannelVoltageScale(channel, value);
+        updateKnobs();
+      }, formatVoltageScale),
+      scopeTraceToggle(channel),
+    );
+    return wrapper;
+  }
+
+  function scopeTraceToggle(channel: ScopeChannel) {
     const wrapper = element("div", "rlc-channel-toggle");
-    const activeIndex = SCOPE_TRACE_OPTIONS.indexOf(state.scopeTrace);
+    const activeIndex = SCOPE_TRACE_OPTIONS.indexOf(channelTrace(channel));
     wrapper.style.setProperty("--active-index", String(activeIndex));
     wrapper.append(element("span", "rlc-channel-thumb"));
     SCOPE_TRACE_OPTIONS.forEach((trace) => {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = trace === state.scopeTrace ? "active" : "";
-      button.append(richHtmlSymbol("u", trace));
-      button.addEventListener("click", () => updateScopeTrace(trace));
+      button.className = trace === channelTrace(channel) ? "active" : "";
+      button.append(richHtmlSymbol("u", trace === "source" ? undefined : trace));
+      button.addEventListener("click", () => updateScopeTrace(channel, trace));
       wrapper.append(button);
     });
     return wrapper;
+  }
+
+  function channelTrace(channel: ScopeChannel): ScopeTrace {
+    return channel === "channel1" ? state.channel1Trace : state.channel2Trace;
+  }
+
+  function setChannelTrace(channel: ScopeChannel, trace: ScopeTrace): void {
+    if (channel === "channel1") {
+      state.channel1Trace = trace;
+    } else {
+      state.channel2Trace = trace;
+    }
+  }
+
+  function channelVoltageScale(channel: ScopeChannel): number {
+    return channel === "channel1" ? state.channel1VoltageScale : state.channel2VoltageScale;
+  }
+
+  function setChannelVoltageScale(channel: ScopeChannel, value: number): void {
+    if (channel === "channel1") {
+      state.channel1VoltageScale = value;
+    } else {
+      state.channel2VoltageScale = value;
+    }
   }
 
   function renderPhasor() {
@@ -318,7 +365,10 @@ export function renderRlcCircuitModule({ t, language = "en" }: ModuleRenderConte
     const model = computeRlcModel(state);
     const origin = { x: PHASOR_WIDTH / 2, y: PHASOR_HEIGHT / 2 };
     const scopePlotHeight = 370;
-    const scale = scopePlotHeight / 8 / state.voltageScale;
+    const channel1 = scopeTraceDetails(model, state.channel1Trace);
+    const channel2 = scopeTraceDetails(model, state.channel2Trace);
+    const phasorVoltageScale = channel1.amplitude >= channel2.amplitude ? state.channel1VoltageScale : state.channel2VoltageScale;
+    const scale = scopePlotHeight / 8 / phasorVoltageScale;
     const timeAngle = -model.omega * state.animationTime;
     appendRect(phasorSvg, 16, 28, PHASOR_WIDTH - 32, PHASOR_HEIGHT - 56, "rlc-phasor-screen");
     for (let index = 0; index <= 8; index += 1) {
@@ -458,7 +508,7 @@ export function renderRlcCircuitModule({ t, language = "en" }: ModuleRenderConte
   }
 
   function knob(
-    labelText: string,
+    labelText: string | null,
     value: number,
     steps: number[],
     onChange: (value: number) => void,
@@ -477,7 +527,10 @@ export function renderRlcCircuitModule({ t, language = "en" }: ModuleRenderConte
       const nextIndex = Math.min(steps.length - 1, Math.max(0, index + direction));
       onChange(steps[nextIndex]);
     });
-    wrapper.append(element("span", "rlc-knob-label", labelText), button, element("strong", "rlc-knob-value", format(value)));
+    if (labelText != null) {
+      wrapper.append(element("span", "rlc-knob-label", labelText));
+    }
+    wrapper.append(button, element("strong", "rlc-knob-value", format(value)));
     return wrapper;
   }
 
@@ -534,6 +587,36 @@ function appendPath(parent: SVGElement, d: string, className: string): void {
   path.setAttribute("d", d);
   path.setAttribute("class", className);
   parent.append(path);
+}
+
+function svgTspan(textContent: string, className: string): SVGTSpanElement {
+  const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+  if (className.length > 0) {
+    tspan.setAttribute("class", className);
+  }
+  tspan.textContent = textContent;
+  return tspan;
+}
+
+function appendScopeLegend(
+  parent: SVGElement,
+  x: number,
+  y: number,
+  channelLabel: string,
+  trace: ScopeTraceDetails,
+): void {
+  appendLine(parent, x, y - 5, x + 24, y - 5, trace.legendClass);
+  const label = richScopeLabel(
+    x + 34,
+    y,
+    "Û",
+    trace.subscript,
+    "",
+    `: ${formatNumber(trace.amplitude)} V`,
+    trace.labelClass,
+  );
+  label.prepend(svgTspan(`${channelLabel} `, ""));
+  parent.append(label);
 }
 
 function drawCircuitDiagram(parent: SVGElement): void {
@@ -766,6 +849,13 @@ function formatNumber(value: number, language = "en"): string {
   return new Intl.NumberFormat(language === "sv" ? "sv-SE" : "en-US", {
     maximumSignificantDigits: 3,
   }).format(value);
+}
+
+function formatVoltageScale(value: number): string {
+  if (Math.abs(value) < 1) {
+    return `${formatNumber(value * 1000)} mV/div`;
+  }
+  return `${formatNumber(value)} V/div`;
 }
 
 function element<K extends keyof HTMLElementTagNameMap>(

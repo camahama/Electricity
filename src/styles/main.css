@@ -543,28 +543,85 @@ button {
 .rlc-scope-knobs {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
+}
+
+.rlc-scope-knobs > .rlc-knob-control,
+.rlc-channel-control {
+  align-self: start;
+}
+
+.rlc-scope-knobs > .rlc-knob-control {
+  position: relative;
+  padding-right: 1rem;
+}
+
+.rlc-channel-control {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.rlc-scope-knobs > .rlc-knob-control::after,
+.rlc-channel-control + .rlc-channel-control::before {
+  content: "";
+  position: absolute;
+  top: 1.45rem;
+  bottom: 0.2rem;
+  width: 2px;
+  border-radius: 999px;
+  background: rgba(19, 34, 56, 0.14);
+}
+
+.rlc-scope-knobs > .rlc-knob-control::after {
+  right: -0.5rem;
+}
+
+.rlc-channel-control + .rlc-channel-control::before {
+  left: -0.5rem;
+}
+
+.rlc-channel-control {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: 1.35rem auto auto;
+  gap: 0.35rem 0.55rem;
+  align-items: start;
+  justify-items: center;
+}
+
+.rlc-channel-label {
+  grid-column: 1 / -1;
+  color: var(--text-secondary);
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.rlc-channel-control .rlc-knob-control {
+  grid-template-rows: auto auto;
+  align-self: start;
 }
 
 .rlc-channel-toggle {
   --active-index: 0;
   position: relative;
   display: grid;
-  gap: 0.18rem;
-  width: 4.4rem;
-  padding: 0.28rem 0.28rem 0.28rem 0.58rem;
+  gap: 0.08rem;
+  width: 3.75rem;
+  padding: 0.22rem 0.22rem 0.22rem 0.48rem;
   border: 2px solid rgba(19, 34, 56, 0.18);
   border-radius: 999px;
   background: #ffffff;
+  align-self: start;
 }
 
 .rlc-channel-toggle::before {
   content: "";
   position: absolute;
-  top: 0.6rem;
-  bottom: 0.6rem;
-  left: 1.25rem;
+  top: 0.48rem;
+  bottom: 0.48rem;
+  left: 1.05rem;
   width: 0.14rem;
   border-radius: 999px;
   background: rgba(19, 34, 56, 0.18);
@@ -573,10 +630,10 @@ button {
 
 .rlc-channel-thumb {
   position: absolute;
-  left: 1.25rem;
-  top: calc(0.68rem + var(--active-index) * 2.28rem);
-  width: 0.55rem;
-  height: 0.55rem;
+  left: 1.05rem;
+  top: calc(0.54rem + var(--active-index) * 1.72rem);
+  width: 0.48rem;
+  height: 0.48rem;
   border-radius: 50%;
   background: #132238;
   transform: translateX(-50%);
@@ -587,13 +644,13 @@ button {
   position: relative;
   z-index: 1;
   width: 100%;
-  height: 2.1rem;
+  height: 1.64rem;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: #5b6a7d;
   font-family: ui-monospace, "SFMono-Regular", monospace;
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   font-weight: 800;
   cursor: pointer;
   text-align: right;
@@ -607,6 +664,7 @@ button {
   display: grid;
   justify-items: center;
   gap: 0.35rem;
+  grid-template-rows: 1.35rem auto auto;
 }
 
 .rlc-knob-label {

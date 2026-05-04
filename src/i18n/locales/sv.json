@@ -125,7 +125,7 @@
     },
     "rlcCircuit": {
       "title": "RLC-krets",
-      "description": "Utforska en seriekopplad resistor, kondensator och spole som drivs av en växelspänning. Jämför källspänningen med spänningen över resistorn på ett oscilloskop.",
+      "description": "Utforska en seriekopplad resistor, kondensator och spole som drivs av en växelspänning. Jämför valbara spänningar på ett oscilloskop.",
       "controlsTitle": "Kretsvärden",
       "scopeControls": "Oscilloskop",
       "resistance": "Resistans R",
@@ -135,6 +135,8 @@
       "frequency": "Frekvens f",
       "timeScale": "Tid",
       "voltageScale": "Spänning",
+      "channel1": "CH1",
+      "channel2": "CH2",
       "startTime": "Starta tiden (1:100)",
       "stopTime": "Stoppa tiden (t=0)",
       "expandDiagram": "Förstora RLC-kopplingsschema",
@@ -142,7 +144,7 @@
       "current": "Strömmens amplitud",
       "phase": "Strömmens fas",
       "resonance": "Resonans",
-      "scopeLabel": "Oscilloskop som visar källspänning och resistorspänning i en seriekopplad RLC-krets",
+      "scopeLabel": "Oscilloskop som visar två valbara spänningskanaler i en seriekopplad RLC-krets",
       "phasorLabel": "Fasdiagram som visar spänningen över resistor, kondensator, spole och källa"
     }
   },
