@@ -7,7 +7,7 @@
   },
   "home": {
     "eyebrow": "Grundläggande elektricitetslära, Fysiska institutionen, Lunds universitet",
-    "description": "En samling av enkla och presentationsvänliga simuleringar i elektricitet för föreläsningar och självstudier.",
+    "description": "En samling av enkla och presentationsvänliga simuleringar i elektricitet för föreläsningar och självstudier. Fortsätt att bygga kretsar, utforska elektrostatik och visualisera trefasström tills du har en stark intuition för hur elektriska kretsar och fält beter sig.",
     "menuTitle": "Moduler",
     "languageLabel": "Språk",
     "logoAlt": "Lunds universitets logotyp",
@@ -53,7 +53,7 @@
       "canvasLabel": "Yta för att placera elektrostatiska material"
     },
     "threePhase": {
-      "title": "Trefassimulator",
+      "title": "Trefas-ström",
       "description": "Justera lasterna på fasspänningarna och huvudspänningarna. Jämför grenströmmar, linjeströmmar, neutralström, visardiagram och vågformer. Klicka på kopplingsschemat för att förstora det, och peka på en last för att se strömmen genom den.",
       "phaseLoadsHeading": "Laster på fasspänningarna (Y)",
       "lineLoadsHeading": "Laster på huvudspänningarna (∆)",

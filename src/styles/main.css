@@ -58,6 +58,13 @@ button {
   padding: clamp(1.5rem, 4vw, 3rem);
 }
 
+.hero {
+  display: grid;
+  align-content: start;
+  width: min(1120px, 100%);
+  min-height: min(840px, calc(100vh - 4rem));
+}
+
 .module-page-wide {
   width: min(1400px, 100%);
 }
@@ -140,12 +147,199 @@ button {
 }
 
 .module-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.9rem;
   margin: 0;
-  padding-left: 1.25rem;
 }
 
 .module-link {
-  font-size: 1.05rem;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  min-height: 9.2rem;
+  padding: 1rem 0.75rem;
+  border: 1px solid rgba(28, 53, 87, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.12;
+  text-align: center;
+  text-decoration: none;
+  transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.module-link:hover,
+.module-link:focus-visible {
+  border-color: rgba(15, 109, 140, 0.26);
+  box-shadow: 0 14px 30px rgba(19, 34, 56, 0.1);
+  transform: translateY(-2px);
+}
+
+.module-icon {
+  width: 100%;
+  max-width: 6rem;
+  height: auto;
+  justify-self: center;
+  overflow: visible;
+}
+
+.module-link[href="#/three-phase"] .module-icon {
+  max-width: 6.4rem;
+}
+
+.module-icon .stroke,
+.module-icon .reference,
+.module-icon .field,
+.module-icon .arc,
+.module-icon .wave,
+.module-icon .guide,
+.module-icon .three-phase,
+.module-icon .neutral,
+.module-icon .three-phase-load,
+.module-icon .terminal {
+  fill: none;
+  stroke: #132238;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.module-icon .electrostatic-bg {
+  stroke: none;
+}
+
+.module-icon .negative-bg {
+  fill: rgba(37, 96, 199, 0.2);
+}
+
+.module-icon .positive-bg {
+  fill: rgba(217, 61, 55, 0.2);
+}
+
+.module-icon .accent,
+.module-icon .positive {
+  stroke: #c9252d;
+}
+
+.module-icon .battery-pole {
+  stroke-width: 6;
+}
+
+.module-icon .negative,
+.module-icon .wave,
+.module-icon .phasor {
+  stroke: #0f6d8c;
+}
+
+.module-icon .red-wave {
+  stroke: #c9252d;
+  stroke-width: 3;
+}
+
+.module-icon .charge,
+.module-icon .node,
+.module-icon .terminal,
+.module-icon .three-phase-load {
+  fill: #ffffff;
+  stroke-width: 4;
+}
+
+.module-icon .charge.positive {
+  fill: #d93d37;
+}
+
+.module-icon .charge.negative {
+  fill: #2560c7;
+}
+
+.module-icon .reference,
+.module-icon .field.faint {
+  stroke: rgba(19, 34, 56, 0.45);
+  stroke-width: 1.6;
+}
+
+.module-icon .field {
+  stroke: rgba(19, 34, 56, 0.72);
+  stroke-width: 1.8;
+}
+
+.module-link[href="#/phasor-diagram"] .module-icon .phasor {
+  stroke-width: 5;
+}
+
+.module-icon .guide {
+  stroke: #dc2f19;
+  stroke-width: 1.4;
+  stroke-dasharray: 4 4;
+}
+
+.module-icon .three-phase.a {
+  stroke: #ff2530;
+}
+
+.module-icon .three-phase.b {
+  stroke: #00a35b;
+}
+
+.module-icon .three-phase.c {
+  stroke: #29368f;
+}
+
+.module-icon .three-phase-load.a {
+  stroke: #ff2530;
+}
+
+.module-icon .three-phase-load.b {
+  stroke: #00a35b;
+}
+
+.module-icon .three-phase-load.c {
+  stroke: #29368f;
+}
+
+.module-icon .terminal.a {
+  stroke: #ff2530;
+}
+
+.module-icon .terminal.b {
+  stroke: #00a35b;
+}
+
+.module-icon .terminal.c {
+  stroke: #29368f;
+}
+
+.module-icon .neutral {
+  stroke: rgba(19, 34, 56, 0.45);
+  stroke-width: 3;
+}
+
+.module-icon .neutral-terminal {
+  stroke: rgba(19, 34, 56, 0.45);
+}
+
+.module-icon .text,
+.module-icon .charge-text,
+.module-icon .phase-text {
+  fill: #ffffff;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  font-size: 16px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.module-icon .phase-text {
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+.module-icon-title {
+  display: block;
 }
 
 .module-header-info {
@@ -2038,6 +2232,20 @@ button {
   .hero,
   .module-page {
     border-radius: 18px;
+  }
+
+  .hero {
+    min-height: 0;
+  }
+
+  .module-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 641px) and (max-width: 960px) {
+  .module-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

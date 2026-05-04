@@ -7,7 +7,7 @@
   },
   "home": {
     "eyebrow": "Basic electricity, Department of Physics, Lund University",
-    "description": "A collection of simple, presentation-ready electricity simulations for lectures and self-study.",
+    "description": "A collection of simple, presentation-ready electricity simulations for lectures and self-study. Practice building circuits, explore electrostatics, and visualize three-phase power, and continue until you have a strong intuition for how electric circuits and fields behave.",
     "menuTitle": "Modules",
     "languageLabel": "Language",
     "logoAlt": "Lund University logo",
@@ -53,7 +53,7 @@
       "canvasLabel": "Electrostatics materials placement board"
     },
     "threePhase": {
-      "title": "Three-Phase Simulator",
+      "title": "Three-Phase Current",
       "description": "Adjust Y and delta loads, then compare branch currents. Compare line currents, neutral current, phasors, and waveforms. Click the circuit diagram to expand it, and hover over a load to see its current.",
       "phaseLoadsHeading": "Phase Loads (Y)",
       "lineLoadsHeading": "Line Loads (∆)",
