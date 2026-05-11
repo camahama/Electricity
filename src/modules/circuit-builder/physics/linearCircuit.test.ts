@@ -53,7 +53,22 @@ test("merges nodes joined by ideal wires", () => {
   assert.equal(solution.nodePotentials.load, 4);
   assert.equal(current(solution, "r1"), 0.02);
   assert.equal(current(solution, "r2"), 0.02);
-  assert.equal(current(solution, "w1"), null);
+  assertAlmostEqual(current(solution, "w1"), 0.02, 1e-9);
+});
+
+test("normalizes numerical residue to zero", () => {
+  const solution = solveLinearCircuit({
+    nodes: ["ground", "n1"],
+    groundNode: "ground",
+    components: [
+      { id: "b1", type: "battery", positiveNode: "n1", negativeNode: "ground", voltageVolts: 1e-10 },
+      { id: "r1", type: "resistor", nodeA: "n1", nodeB: "ground", resistanceOhms: 1 },
+    ],
+  });
+
+  assert.equal(solution.nodePotentials.n1, 0);
+  assert.equal(current(solution, "r1"), 0);
+  assert.equal(current(solution, "b1"), 0);
 });
 
 test("rejects floating circuits as singular", () => {

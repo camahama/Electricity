@@ -49,6 +49,9 @@ export type LinearCircuitSolution = {
 
 const MAX_CONNECTION_POINTS = 100;
 const PIVOT_EPSILON = 1e-12;
+const NUMERICAL_ZERO_RELATIVE_TOLERANCE = 1e-6;
+const NUMERICAL_ZERO_ABSOLUTE_VOLTAGE_TOLERANCE = 1e-9;
+const NUMERICAL_ZERO_ABSOLUTE_CURRENT_TOLERANCE = 1e-9;
 
 class DisjointSet {
   private readonly parent = new Map<CircuitNodeId, CircuitNodeId>();
@@ -155,11 +158,12 @@ export function solveLinearCircuit(circuit: LinearCircuit): LinearCircuitSolutio
     batteryCurrentById.set(component.id, solution[nodeUnknownCount + batteryIndex]);
   });
 
-  return {
-    nodePotentials: Object.fromEntries(
-      circuit.nodes.map((node) => [node, mergedPotentials.get(disjointSet.find(node)) ?? 0]),
-    ),
-    componentCurrents: circuit.components.map((component) => {
+  const nodePotentials = Object.fromEntries(
+    circuit.nodes.map((node) => [node, mergedPotentials.get(disjointSet.find(node)) ?? 0]),
+  );
+  const componentCurrents = deriveWireCurrents(
+    circuit,
+    circuit.components.map((component) => {
       if (component.type === "wire") {
         return {
           componentId: component.id,
@@ -185,8 +189,99 @@ export function solveLinearCircuit(circuit: LinearCircuit): LinearCircuitSolutio
           component.resistanceOhms,
       };
     }),
+  );
+
+  return normalizeSolution({
+    nodePotentials,
+    componentCurrents,
     equivalentNodes,
+  }, circuit);
+}
+
+function deriveWireCurrents(
+  circuit: LinearCircuit,
+  componentCurrents: ComponentCurrentResult[],
+): ComponentCurrentResult[] {
+  const wires = circuit.components.filter((component) => component.type === "wire");
+  if (wires.length === 0) {
+    return componentCurrents;
+  }
+
+  const nodeIndex = new Map(circuit.nodes.map((node, index) => [node, index]));
+  const matrix = Array.from({ length: circuit.nodes.length }, () => new Array(wires.length).fill(0));
+  const rhs = new Array(circuit.nodes.length).fill(0);
+  const currentById = new Map(componentCurrents.map((entry) => [entry.componentId, entry.currentAmps]));
+
+  for (const [wireIndex, wire] of wires.entries()) {
+    stampBranch(matrix, nodeIndex, wire.nodeA, wire.nodeB, wireIndex, 1);
+  }
+
+  for (const component of circuit.components) {
+    const current = currentById.get(component.id);
+    if (current == null) {
+      continue;
+    }
+
+    const endpoints = getComponentEndpointIds(component);
+    const startIndex = nodeIndex.get(endpoints.startNode);
+    const endIndex = nodeIndex.get(endpoints.endNode);
+
+    if (startIndex != null) {
+      rhs[startIndex] -= current;
+    }
+    if (endIndex != null) {
+      rhs[endIndex] += current;
+    }
+  }
+
+  const wireCurrents = solveLeastSquares(matrix, rhs);
+  const wireCurrentById = new Map(wires.map((wire, index) => [wire.id, wireCurrents[index] ?? 0]));
+
+  return componentCurrents.map((entry) =>
+    entry.type === "wire"
+      ? {
+          ...entry,
+          currentAmps: wireCurrentById.get(entry.componentId) ?? null,
+        }
+      : entry,
+  );
+}
+
+function normalizeSolution(solution: LinearCircuitSolution, circuit: LinearCircuit): LinearCircuitSolution {
+  let maxVoltage = Math.max(0, ...Object.values(solution.nodePotentials).map((potential) => Math.abs(potential)));
+  let maxCurrent = 0;
+
+  for (const component of circuit.components) {
+    const endpoints = getComponentEndpointIds(component);
+    maxVoltage = Math.max(
+      maxVoltage,
+      Math.abs((solution.nodePotentials[endpoints.startNode] ?? 0) - (solution.nodePotentials[endpoints.endNode] ?? 0)),
+    );
+  }
+
+  for (const current of solution.componentCurrents) {
+    if (current.currentAmps != null) {
+      maxCurrent = Math.max(maxCurrent, Math.abs(current.currentAmps));
+    }
+  }
+
+  const voltageThreshold = Math.max(maxVoltage * NUMERICAL_ZERO_RELATIVE_TOLERANCE, NUMERICAL_ZERO_ABSOLUTE_VOLTAGE_TOLERANCE);
+  const currentThreshold = Math.max(maxCurrent * NUMERICAL_ZERO_RELATIVE_TOLERANCE, NUMERICAL_ZERO_ABSOLUTE_CURRENT_TOLERANCE);
+
+  return {
+    ...solution,
+    nodePotentials: Object.fromEntries(
+      Object.entries(solution.nodePotentials).map(([node, potential]) => [node, zeroNumericalNoise(potential, voltageThreshold)]),
+    ),
+    componentCurrents: solution.componentCurrents.map((current) => ({
+      ...current,
+      currentAmps: current.currentAmps == null ? null : zeroNumericalNoise(current.currentAmps, currentThreshold),
+    })),
   };
+}
+
+function zeroNumericalNoise(value: number, threshold: number): number {
+  return Math.abs(value) < threshold ? 0 : value;
 }
 
 function validateCircuit(circuit: LinearCircuit): void {
@@ -233,8 +328,35 @@ function getComponentNodes(component: LinearCircuitComponent): CircuitNodeId[] {
   return [component.nodeA, component.nodeB];
 }
 
+function getComponentEndpointIds(component: LinearCircuitComponent): { startNode: CircuitNodeId; endNode: CircuitNodeId } {
+  if (component.type === "battery") {
+    return { startNode: component.positiveNode, endNode: component.negativeNode };
+  }
+
+  return { startNode: component.nodeA, endNode: component.nodeB };
+}
+
 function createMatrix(rows: number, columns: number): number[][] {
   return Array.from({ length: rows }, () => new Array<number>(columns).fill(0));
+}
+
+function stampBranch(
+  matrix: number[][],
+  nodeIndex: Map<CircuitNodeId, number>,
+  startNode: CircuitNodeId,
+  endNode: CircuitNodeId,
+  column: number,
+  coefficient: number,
+): void {
+  const startIndex = nodeIndex.get(startNode);
+  const endIndex = nodeIndex.get(endNode);
+
+  if (startIndex != null) {
+    matrix[startIndex][column] += coefficient;
+  }
+  if (endIndex != null) {
+    matrix[endIndex][column] -= coefficient;
+  }
 }
 
 function stampConductance(
@@ -328,6 +450,63 @@ function solveLinearSystem(matrix: number[][], rhs: number[]): number[] {
         continue;
       }
 
+      for (let entry = column; entry <= size; entry += 1) {
+        augmented[row][entry] -= factor * augmented[column][entry];
+      }
+    }
+  }
+
+  return augmented.map((row) => row[size]);
+}
+
+function solveLeastSquares(matrix: number[][], rhs: number[]): number[] {
+  const columns = matrix[0]?.length ?? 0;
+  const normal = Array.from({ length: columns }, () => new Array(columns).fill(0));
+  const projected = new Array(columns).fill(0);
+
+  for (let row = 0; row < matrix.length; row += 1) {
+    for (let colA = 0; colA < columns; colA += 1) {
+      projected[colA] += matrix[row][colA] * rhs[row];
+      for (let colB = 0; colB < columns; colB += 1) {
+        normal[colA][colB] += matrix[row][colA] * matrix[row][colB];
+      }
+    }
+  }
+
+  for (let index = 0; index < columns; index += 1) {
+    normal[index][index] += 1e-10;
+  }
+
+  return solveRegularizedSystem(normal, projected);
+}
+
+function solveRegularizedSystem(matrix: number[][], rhs: number[]): number[] {
+  const size = rhs.length;
+  const augmented = matrix.map((row, index) => [...row, rhs[index]]);
+
+  for (let column = 0; column < size; column += 1) {
+    let pivotRow = column;
+    for (let row = column + 1; row < size; row += 1) {
+      if (Math.abs(augmented[row][column]) > Math.abs(augmented[pivotRow][column])) {
+        pivotRow = row;
+      }
+    }
+
+    if (Math.abs(augmented[pivotRow][column]) < 1e-14) {
+      return new Array(size).fill(0);
+    }
+
+    [augmented[column], augmented[pivotRow]] = [augmented[pivotRow], augmented[column]];
+    const pivot = augmented[column][column];
+    for (let entry = column; entry <= size; entry += 1) {
+      augmented[column][entry] /= pivot;
+    }
+
+    for (let row = 0; row < size; row += 1) {
+      if (row === column) {
+        continue;
+      }
+      const factor = augmented[row][column];
       for (let entry = column; entry <= size; entry += 1) {
         augmented[row][entry] -= factor * augmented[column][entry];
       }
