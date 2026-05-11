@@ -3,12 +3,13 @@ import { solveLinearCircuit, type LinearCircuitComponent } from "./physics/linea
 
 const BOARD_WIDTH = 900;
 const BOARD_HEIGHT = 700;
+const GRID_SIZE = 50;
 const SNAP_RADIUS = 18;
 const NODE_SPLIT_GAP = SNAP_RADIUS + 14;
-const COMPONENT_HALF_SPAN = 60;
-const REAL_BATTERY_LEFT_SPAN = 95;
-const REAL_BATTERY_RIGHT_SPAN = 95;
-const REAL_BATTERY_MIDDLE_OFFSET = -20;
+const COMPONENT_SPAN = GRID_SIZE * 3;
+const REAL_BATTERY_LEFT_SPAN = GRID_SIZE * 2;
+const REAL_BATTERY_RIGHT_SPAN = GRID_SIZE * 2;
+const REAL_BATTERY_SPAN = REAL_BATTERY_LEFT_SPAN + REAL_BATTERY_RIGHT_SPAN;
 const DEFAULT_RESISTANCE_OHMS = 100;
 const DEFAULT_VOLTAGE_VOLTS = 9;
 const REAL_BATTERY_RESISTANCE_OHMS = 1;
@@ -59,6 +60,7 @@ const state = {
   pendingWireNode: null as string | null,
   pendingVoltmeterNode: null as string | null,
   pendingOhmmeterNode: null as string | null,
+  snapToGrid: true,
   draggingNode: null as DraggingNode | null,
   draggingProbe: null as DraggingProbe | null,
   draggingComponent: null as DraggingComponent | null,
@@ -98,8 +100,17 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
   const layout = element("div", "circuit-builder-layout");
   const controls = element("aside", "circuit-builder-controls");
   const boardPanel = element("section", "circuit-builder-board-panel");
+  const snapControl = element("label", "circuit-builder-snap-control");
+  const snapCheckbox = document.createElement("input");
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   const results = element("div", "circuit-builder-results");
+
+  snapCheckbox.type = "checkbox";
+  snapCheckbox.checked = state.snapToGrid;
+  snapCheckbox.addEventListener("change", () => {
+    state.snapToGrid = snapCheckbox.checked;
+  });
+  snapControl.append(snapCheckbox, element("span", "", t("modules.circuitBuilder.snapToGrid")));
 
   svg.setAttribute("viewBox", `0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`);
   svg.setAttribute("class", "circuit-builder-board");
@@ -448,6 +459,7 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
 
   svg.addEventListener("pointerdown", (event) => {
     const point = svgPoint(svg, event);
+    const placementPoint = maybeSnapPoint(point);
 
     if (state.selectedTool === "select") {
       return;
@@ -458,28 +470,28 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
     }
 
     if (state.selectedTool === "ground") {
-      state.groundNode = getOrCreateNode(point.x, point.y);
+      state.groundNode = getOrCreateNode(placementPoint.x, placementPoint.y);
       returnToSelect();
       update();
       return;
     }
 
     if (state.selectedTool === "wire") {
-      const nodeId = getOrCreateNode(point.x, point.y);
+      const nodeId = getOrCreateNode(placementPoint.x, placementPoint.y);
       handleWireNode(nodeId);
       update();
       return;
     }
 
     if (state.selectedTool === "potentialProbe") {
-      togglePotentialProbe(getOrCreateNode(point.x, point.y));
+      togglePotentialProbe(getOrCreateNode(placementPoint.x, placementPoint.y));
       returnToSelect();
       update();
       return;
     }
 
     if (state.selectedTool === "voltmeter") {
-      if (handleVoltmeterNode(getOrCreateNode(point.x, point.y))) {
+      if (handleVoltmeterNode(getOrCreateNode(placementPoint.x, placementPoint.y))) {
         returnToSelect();
       }
       update();
@@ -487,7 +499,7 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
     }
 
     if (state.selectedTool === "ohmmeter") {
-      if (handleOhmmeterNode(getOrCreateNode(point.x, point.y))) {
+      if (handleOhmmeterNode(getOrCreateNode(placementPoint.x, placementPoint.y))) {
         returnToSelect();
       }
       update();
@@ -495,8 +507,9 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
     }
 
     if (state.selectedTool === "resistor") {
-      const leftNode = getOrCreateNode(point.x - COMPONENT_HALF_SPAN, point.y);
-      const rightNode = getOrCreateNode(point.x + COMPONENT_HALF_SPAN, point.y);
+      const { left, right } = horizontalSpanPoints(point, COMPONENT_SPAN);
+      const leftNode = getOrCreateNode(left.x, left.y);
+      const rightNode = getOrCreateNode(right.x, right.y);
       state.components.push({
         id: nextComponentIdValue("r"),
         type: "resistor",
@@ -505,8 +518,9 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
         resistanceOhms: state.lastResistanceOhms,
       });
     } else if (state.selectedTool === "idealBattery") {
-      const leftNode = getOrCreateNode(point.x - COMPONENT_HALF_SPAN, point.y);
-      const rightNode = getOrCreateNode(point.x + COMPONENT_HALF_SPAN, point.y);
+      const { left, right } = horizontalSpanPoints(point, COMPONENT_SPAN);
+      const leftNode = getOrCreateNode(left.x, left.y);
+      const rightNode = getOrCreateNode(right.x, right.y);
       state.components.push({
         id: nextComponentIdValue("b"),
         type: "idealBattery",
@@ -515,9 +529,10 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
         voltageVolts: state.lastBatteryVoltageVolts,
       });
     } else if (state.selectedTool === "realBattery") {
-      const realBatteryLeftNode = getOrCreateNode(point.x - REAL_BATTERY_LEFT_SPAN, point.y);
-      const middleNode = getOrCreateNode(point.x + REAL_BATTERY_MIDDLE_OFFSET, point.y);
-      const realBatteryRightNode = getOrCreateNode(point.x + REAL_BATTERY_RIGHT_SPAN, point.y);
+      const { left, middle, right } = realBatterySpanPoints(point);
+      const realBatteryLeftNode = getOrCreateNode(left.x, left.y);
+      const middleNode = getOrCreateNode(middle.x, middle.y);
+      const realBatteryRightNode = getOrCreateNode(right.x, right.y);
       state.components.push(
         {
           id: nextComponentIdValue("b"),
@@ -562,8 +577,9 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
       return;
     }
     state.draggingNode.moved = true;
-    node.x = clamp(point.x, 0, BOARD_WIDTH);
-    node.y = clamp(point.y, 0, BOARD_HEIGHT);
+    const targetPoint = maybeSnapPoint(point);
+    node.x = targetPoint.x;
+    node.y = targetPoint.y;
     renderBoard();
   });
 
@@ -600,7 +616,7 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
     }
   });
 
-  boardPanel.append(svg, results);
+  boardPanel.append(snapControl, svg, results);
   layout.append(controls, boardPanel);
   content.append(header, layout);
   page.append(content);
@@ -816,12 +832,22 @@ function moveDraggingComponent(point: { x: number; y: number }): boolean {
     return false;
   }
 
-  const deltaX = point.x - dragging.startX;
-  const deltaY = point.y - dragging.startY;
+  let deltaX = point.x - dragging.startX;
+  let deltaY = point.y - dragging.startY;
   if (!dragging.moved && Math.hypot(deltaX, deltaY) < 3) {
     return false;
   }
   dragging.moved = true;
+
+  if (state.snapToGrid && dragging.nodes.length > 0) {
+    const referenceNode = dragging.nodes[0];
+    const snappedReference = snapPointToGrid({
+      x: referenceNode.x + deltaX,
+      y: referenceNode.y + deltaY,
+    });
+    deltaX = snappedReference.x - referenceNode.x;
+    deltaY = snappedReference.y - referenceNode.y;
+  }
 
   for (const startNode of dragging.nodes) {
     const node = getNode(startNode.id);
@@ -829,6 +855,75 @@ function moveDraggingComponent(point: { x: number; y: number }): boolean {
     node.y = clamp(startNode.y + deltaY, 0, BOARD_HEIGHT);
   }
   return true;
+}
+
+function maybeSnapPoint(point: { x: number; y: number }): { x: number; y: number } {
+  return state.snapToGrid ? snapPointToGrid(point) : clampPoint(point);
+}
+
+function snapPointToGrid(point: { x: number; y: number }): { x: number; y: number } {
+  return {
+    x: snapValueToGrid(point.x, BOARD_WIDTH),
+    y: snapValueToGrid(point.y, BOARD_HEIGHT),
+  };
+}
+
+function snapValueToGrid(value: number, max: number): number {
+  return clamp(Math.round(value / GRID_SIZE) * GRID_SIZE, 0, max);
+}
+
+function clampPoint(point: { x: number; y: number }): { x: number; y: number } {
+  return {
+    x: clamp(point.x, 0, BOARD_WIDTH),
+    y: clamp(point.y, 0, BOARD_HEIGHT),
+  };
+}
+
+function horizontalSpanPoints(
+  center: { x: number; y: number },
+  span: number,
+): { left: { x: number; y: number }; right: { x: number; y: number } } {
+  if (!state.snapToGrid) {
+    const y = clamp(center.y, 0, BOARD_HEIGHT);
+    return {
+      left: { x: clamp(center.x - span / 2, 0, BOARD_WIDTH), y },
+      right: { x: clamp(center.x + span / 2, 0, BOARD_WIDTH), y },
+    };
+  }
+
+  const y = snapValueToGrid(center.y, BOARD_HEIGHT);
+  const leftX = snappedSpanStart(center.x, span);
+  return {
+    left: { x: leftX, y },
+    right: { x: leftX + span, y },
+  };
+}
+
+function realBatterySpanPoints(center: { x: number; y: number }): {
+  left: { x: number; y: number };
+  middle: { x: number; y: number };
+  right: { x: number; y: number };
+} {
+  if (!state.snapToGrid) {
+    const y = clamp(center.y, 0, BOARD_HEIGHT);
+    return {
+      left: { x: clamp(center.x - REAL_BATTERY_LEFT_SPAN, 0, BOARD_WIDTH), y },
+      middle: { x: clamp(center.x, 0, BOARD_WIDTH), y },
+      right: { x: clamp(center.x + REAL_BATTERY_RIGHT_SPAN, 0, BOARD_WIDTH), y },
+    };
+  }
+
+  const y = snapValueToGrid(center.y, BOARD_HEIGHT);
+  const leftX = snappedSpanStart(center.x, REAL_BATTERY_SPAN);
+  return {
+    left: { x: leftX, y },
+    middle: { x: leftX + REAL_BATTERY_LEFT_SPAN, y },
+    right: { x: leftX + REAL_BATTERY_SPAN, y },
+  };
+}
+
+function snappedSpanStart(centerX: number, span: number): number {
+  return clamp(snapValueToGrid(centerX - span / 2, BOARD_WIDTH), 0, BOARD_WIDTH - span);
 }
 
 function shouldEditComponentOnDoubleClick(component: BoardComponent, target: EventTarget | null): boolean {
@@ -1158,17 +1253,10 @@ function renderVoltmeter(voltmeter: VoltmeterProbe): SVGElement {
   const displayedVoltage = voltage == null ? null : zeroTinyVoltage(voltage);
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("class", "circuit-builder-voltmeter");
-  appendLine(group, positive.x, positive.y, meterCenter.x - 28, meterCenter.y, "circuit-builder-voltmeter-lead positive");
-  appendLine(group, negative.x, negative.y, meterCenter.x + 28, meterCenter.y, "circuit-builder-voltmeter-lead negative");
-  const body = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-  body.setAttribute("x", String(meterCenter.x - 42));
-  body.setAttribute("y", String(meterCenter.y - 18));
-  body.setAttribute("width", "84");
-  body.setAttribute("height", "36");
-  body.setAttribute("rx", "8");
-  body.setAttribute("class", "circuit-builder-voltmeter-body");
-  group.append(body, label(meterCenter.x, meterCenter.y + 6, displayedVoltage == null ? "—" : formatMeasurementVoltage(displayedVoltage)));
-  group.lastElementChild?.setAttribute("class", "circuit-builder-voltage-label");
+  appendMeterLead(group, positive, meterCenter, "circuit-builder-voltmeter-lead positive");
+  appendMeterLead(group, negative, meterCenter, "circuit-builder-voltmeter-lead negative");
+  appendMeterSymbol(group, meterCenter, "V", "circuit-builder-voltmeter-body");
+  appendMeterReadout(group, meterCenter, displayedVoltage == null ? "—" : formatMeasurementVoltage(displayedVoltage), "circuit-builder-voltage-label");
   return group;
 }
 
@@ -1177,17 +1265,10 @@ function renderOhmmeter(ohmmeter: OhmmeterProbe): SVGElement {
   const resistance = resistanceBetween(ohmmeter.positiveNode, ohmmeter.negativeNode);
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("class", "circuit-builder-ohmmeter");
-  appendLine(group, positive.x, positive.y, meterCenter.x - 28, meterCenter.y, "circuit-builder-ohmmeter-lead");
-  appendLine(group, negative.x, negative.y, meterCenter.x + 28, meterCenter.y, "circuit-builder-ohmmeter-lead");
-  const body = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-  body.setAttribute("x", String(meterCenter.x - 42));
-  body.setAttribute("y", String(meterCenter.y - 18));
-  body.setAttribute("width", "84");
-  body.setAttribute("height", "36");
-  body.setAttribute("rx", "8");
-  body.setAttribute("class", "circuit-builder-ohmmeter-body");
-  group.append(body, label(meterCenter.x, meterCenter.y + 6, resistance == null ? "—" : formatMeasurementResistance(resistance)));
-  group.lastElementChild?.setAttribute("class", "circuit-builder-ohmmeter-label");
+  appendMeterLead(group, positive, meterCenter, "circuit-builder-ohmmeter-lead");
+  appendMeterLead(group, negative, meterCenter, "circuit-builder-ohmmeter-lead");
+  appendMeterSymbol(group, meterCenter, "Ω", "circuit-builder-ohmmeter-body");
+  appendMeterReadout(group, meterCenter, resistance == null ? "—" : formatMeasurementResistance(resistance), "circuit-builder-ohmmeter-label");
   return group;
 }
 
@@ -1197,18 +1278,19 @@ function renderCurrentProbe(probe: CurrentProbe): SVGElement {
     return document.createElementNS("http://www.w3.org/2000/svg", "g");
   }
 
-  const halfLength = 24;
+  const arrowStart = {
+    x: geometry.center.x + geometry.ux * 26,
+    y: geometry.center.y + geometry.uy * 26,
+  };
+  const arrowEnd = {
+    x: geometry.center.x + geometry.ux * 42,
+    y: geometry.center.y + geometry.uy * 42,
+  };
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("class", "circuit-builder-current-probe");
-  appendLine(
-    group,
-    geometry.center.x - geometry.ux * halfLength,
-    geometry.center.y - geometry.uy * halfLength,
-    geometry.center.x + geometry.ux * halfLength,
-    geometry.center.y + geometry.uy * halfLength,
-    "circuit-builder-current-arrow",
-  );
+  appendLine(group, arrowStart.x, arrowStart.y, arrowEnd.x, arrowEnd.y, "circuit-builder-current-arrow");
   group.lastElementChild?.setAttribute("marker-end", "url(#circuit-builder-current-arrowhead)");
+  appendMeterSymbol(group, geometry.center, "A", "circuit-builder-ammeter-body");
 
   const currentLabel = label(
     geometry.textPosition.x,
@@ -1222,16 +1304,57 @@ function renderCurrentProbe(probe: CurrentProbe): SVGElement {
   return group;
 }
 
+function appendMeterLead(
+  group: SVGElement,
+  node: CircuitNode,
+  meterCenter: { x: number; y: number },
+  className: string,
+): void {
+  const radius = 17;
+  const dx = node.x - meterCenter.x;
+  const dy = node.y - meterCenter.y;
+  const length = Math.hypot(dx, dy) || 1;
+  appendLine(
+    group,
+    node.x,
+    node.y,
+    meterCenter.x + (dx / length) * radius,
+    meterCenter.y + (dy / length) * radius,
+    className,
+  );
+}
+
+function appendMeterSymbol(group: SVGElement, center: { x: number; y: number }, symbol: string, className: string): void {
+  const body = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  body.setAttribute("cx", String(center.x));
+  body.setAttribute("cy", String(center.y));
+  body.setAttribute("r", "17");
+  body.setAttribute("class", className);
+  const textNode = label(center.x, center.y + 6, symbol);
+  textNode.setAttribute("class", "circuit-builder-meter-symbol");
+  group.append(body, textNode);
+}
+
+function appendMeterReadout(group: SVGElement, center: { x: number; y: number }, value: string, className: string): void {
+  const x = clamp(center.x + 25, 28, BOARD_WIDTH - 110);
+  const readout = label(x, center.y + 6, value);
+  readout.setAttribute("class", className);
+  readout.setAttribute("text-anchor", "start");
+  group.append(readout);
+}
+
 function pointHitsVoltmeter(voltmeter: VoltmeterProbe, point: { x: number; y: number }): boolean {
   return pointHitsMeter(voltmeter, point);
 }
 
 function pointHitsMeter(meter: MeterProbe, point: { x: number; y: number }): boolean {
   const { positive, negative, meterCenter } = meterGeometry(meter);
+  const readoutX = clamp(meterCenter.x + 25, 28, BOARD_WIDTH - 110);
   return (
-    pointInRect(point, meterCenter.x - 48, meterCenter.y - 24, 96, 48) ||
-    distanceToSegment(point, positive, { x: meterCenter.x - 28, y: meterCenter.y }) <= 10 ||
-    distanceToSegment(point, negative, { x: meterCenter.x + 28, y: meterCenter.y }) <= 10
+    Math.hypot(point.x - meterCenter.x, point.y - meterCenter.y) <= 22 ||
+    pointInRect(point, readoutX, meterCenter.y - 22, 110, 32) ||
+    distanceToSegment(point, positive, meterCenter) <= 10 ||
+    distanceToSegment(point, negative, meterCenter) <= 10
   );
 }
 
@@ -1250,12 +1373,13 @@ function pointHitsCurrentProbe(probe: CurrentProbe, point: { x: number; y: numbe
     return false;
   }
 
-  const arrowStart = { x: geometry.center.x - geometry.ux * 28, y: geometry.center.y - geometry.uy * 28 };
-  const arrowEnd = { x: geometry.center.x + geometry.ux * 28, y: geometry.center.y + geometry.uy * 28 };
   const labelX = geometry.textPosition.anchor === "end" ? geometry.textPosition.x - 110 : geometry.textPosition.x;
   const labelRectX = geometry.textPosition.anchor === "middle" ? geometry.textPosition.x - 55 : labelX;
+  const arrowStart = { x: geometry.center.x + geometry.ux * 24, y: geometry.center.y + geometry.uy * 24 };
+  const arrowEnd = { x: geometry.center.x + geometry.ux * 44, y: geometry.center.y + geometry.uy * 44 };
   return (
-    distanceToSegment(point, arrowStart, arrowEnd) <= 13 ||
+    Math.hypot(point.x - geometry.center.x, point.y - geometry.center.y) <= 22 ||
+    distanceToSegment(point, arrowStart, arrowEnd) <= 12 ||
     pointInRect(point, labelRectX, geometry.textPosition.y - 26, 110, 34)
   );
 }
@@ -1975,10 +2099,10 @@ function nextComponentIdValue(prefix: string): string {
 function createGrid(): SVGElement {
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("class", "circuit-builder-grid");
-  for (let x = 0; x <= BOARD_WIDTH; x += 50) {
+  for (let x = 0; x <= BOARD_WIDTH; x += GRID_SIZE) {
     appendLine(group, x, 0, x, BOARD_HEIGHT, "circuit-builder-grid-line");
   }
-  for (let y = 0; y <= BOARD_HEIGHT; y += 50) {
+  for (let y = 0; y <= BOARD_HEIGHT; y += GRID_SIZE) {
     appendLine(group, 0, y, BOARD_WIDTH, y, "circuit-builder-grid-line");
   }
   return group;
@@ -1991,8 +2115,8 @@ function createProbeMarker(): SVGDefsElement {
   marker.setAttribute("viewBox", "0 0 10 10");
   marker.setAttribute("refX", "9");
   marker.setAttribute("refY", "5");
-  marker.setAttribute("markerWidth", "5");
-  marker.setAttribute("markerHeight", "5");
+  marker.setAttribute("markerWidth", "2.5");
+  marker.setAttribute("markerHeight", "2.5");
   marker.setAttribute("orient", "auto-start-reverse");
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
@@ -2275,8 +2399,11 @@ function createToolIcon(tool: Tool): SVGSVGElement {
     line(23, 23, 41, 23);
     line(28, 30, 36, 30);
   } else if (tool === "currentProbe") {
-    line(8, 18, 56, 18);
-    path("M 35 10 L 48 18 L 35 26 Z", "fill");
+    line(6, 18, 14, 18);
+    circle(28, 18, 14);
+    text(28, 23, "A");
+    line(42, 18, 60, 18);
+    path("M 48 14 L 56 18 L 48 22 Z", "fill");
   } else if (tool === "potentialProbe") {
     circle(22, 18, 5, "fill");
     line(27, 18, 39, 18);
