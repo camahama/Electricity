@@ -13,7 +13,8 @@
     "logoAlt": "Lunds universitets logotyp",
     "creditPrefix": "Vibekodat 2026 av",
     "creditLicensePrefix": "Creative Commons-licensiering",
-    "creditLicenseLabel": "CC-BY-NC-SA"
+    "creditLicenseLabel": "CC-BY-NC-SA",
+    "repositoryLinkLabel": "Offentlig GitHub-repo"
   },
   "modules": {
     "electrostatics": {

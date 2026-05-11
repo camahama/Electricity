@@ -108,8 +108,17 @@ function renderHome({ t, language }) {
   licenseLink.textContent = t("home.creditLicenseLabel");
   credit.append(licenseLink);
 
+  const repository = document.createElement("p");
+  repository.className = "repository-link";
+  const repositoryLink = document.createElement("a");
+  repositoryLink.href = "https://github.com/camahama/Electricity";
+  repositoryLink.target = "_blank";
+  repositoryLink.rel = "noopener noreferrer";
+  repositoryLink.textContent = t("home.repositoryLinkLabel");
+  repository.append(repositoryLink);
+
   branding.append(logo);
-  hero.append(branding, eyebrow, title, description, languagePicker, menuTitle, menu, credit);
+  hero.append(branding, eyebrow, title, description, languagePicker, menuTitle, menu, credit, repository);
   page.append(hero);
 
   return page;

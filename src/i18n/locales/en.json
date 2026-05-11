@@ -13,7 +13,8 @@
     "logoAlt": "Lund University logo",
     "creditPrefix": "Vibecoded 2026 by",
     "creditLicensePrefix": "Creative Commons licensing",
-    "creditLicenseLabel": "CC-BY-NC-SA"
+    "creditLicenseLabel": "CC-BY-NC-SA",
+    "repositoryLinkLabel": "Public GitHub repo"
   },
   "modules": {
     "electrostatics": {
