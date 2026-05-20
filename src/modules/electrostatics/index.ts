@@ -147,6 +147,18 @@ function createDipolePreset() {
   ];
 }
 
+function createChargeButtonContent(charge, label) {
+  const icon = document.createElement("span");
+  icon.className = `charge-button-icon ${charge > 0 ? "positive" : "negative"}`;
+  icon.textContent = `${charge > 0 ? "+" : ""}${charge}`;
+
+  const text = document.createElement("span");
+  text.className = "charge-button-label";
+  text.textContent = label;
+
+  return [icon, text];
+}
+
 export function renderElectrostaticsModule({ t }) {
   const page = document.createElement("main");
   page.className = "page-shell";
@@ -197,13 +209,13 @@ export function renderElectrostaticsModule({ t }) {
 
   const positiveButton = document.createElement("button");
   positiveButton.type = "button";
-  positiveButton.className = "charge-type-button charge-type-positive";
-  positiveButton.textContent = t("modules.electrostatics.positiveCharge");
+  positiveButton.className = "charge-type-button charge-type-positive charge-symbol-button";
+  positiveButton.append(...createChargeButtonContent(1, t("modules.electrostatics.positiveCharge")));
 
   const negativeButton = document.createElement("button");
   negativeButton.type = "button";
-  negativeButton.className = "charge-type-button charge-type-negative";
-  negativeButton.textContent = t("modules.electrostatics.negativeCharge");
+  negativeButton.className = "charge-type-button charge-type-negative charge-symbol-button";
+  negativeButton.append(...createChargeButtonContent(-1, t("modules.electrostatics.negativeCharge")));
 
   const resetButton = document.createElement("button");
   resetButton.type = "button";
@@ -274,7 +286,10 @@ export function renderElectrostaticsModule({ t }) {
   function drawGridBackground() {
     context.fillStyle = "#fbfcfe";
     context.fillRect(0, 0, GRID_WIDTH, GRID_HEIGHT);
+    drawGridOverlay();
+  }
 
+  function drawGridOverlay() {
     for (let index = 0; index <= GRID_WIDTH; index += 50) {
       context.beginPath();
       context.strokeStyle = index % 100 === 0 ? "#d6deea" : "#e8edf5";
@@ -343,6 +358,7 @@ export function renderElectrostaticsModule({ t }) {
     }
 
     context.putImageData(imageData, 0, 0);
+    drawGridOverlay();
   }
 
   function drawCharge(charge) {
