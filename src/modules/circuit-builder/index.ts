@@ -1,4 +1,5 @@
 import type { ModuleRenderContext } from "../../config/modules.js";
+import { createPackageCredit } from "../../components/packageCredit.js";
 import { solveLinearCircuit, type LinearCircuitComponent } from "./physics/linearCircuit.js";
 
 const BOARD_WIDTH = 900;
@@ -614,7 +615,7 @@ export function renderCircuitBuilderModule({ t, language = "en" }: ModuleRenderC
 
   boardPanel.append(snapControl, svg, results);
   layout.append(controls, boardPanel);
-  content.append(header, layout);
+  content.append(header, layout, createPackageCredit(t));
   page.append(content);
   update();
 

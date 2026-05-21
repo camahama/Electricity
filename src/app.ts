@@ -1,4 +1,5 @@
 import { moduleRegistry } from "./config/modules.js";
+import { createPackageCredit } from "./components/packageCredit.js";
 import { createI18n } from "./i18n/index.js";
 
 const DEFAULT_ROUTE = "home";
@@ -94,19 +95,7 @@ function renderHome({ t, language }) {
 
   menu.append(moduleList);
 
-  const credit = document.createElement("p");
-  credit.className = "package-credit";
-  credit.append(`${t("home.creditPrefix")} `);
-  const emailLink = document.createElement("a");
-  emailLink.href = "mailto:martin.magnusson@fysik.lu.se";
-  emailLink.textContent = "martin.magnusson@fysik.lu.se";
-  credit.append(emailLink, `. ${t("home.creditLicensePrefix")} `);
-  const licenseLink = document.createElement("a");
-  licenseLink.href = "https://creativecommons.org/licenses/by-nc-sa/4.0/?ref=chooser-v1";
-  licenseLink.target = "_blank";
-  licenseLink.rel = "license noopener noreferrer";
-  licenseLink.textContent = t("home.creditLicenseLabel");
-  credit.append(licenseLink);
+  const credit = createPackageCredit(t);
 
   const repository = document.createElement("p");
   repository.className = "repository-link";

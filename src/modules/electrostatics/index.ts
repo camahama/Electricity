@@ -1,3 +1,4 @@
+import { createPackageCredit } from "../../components/packageCredit.js";
 import {
   computeElectricFieldAtPoint,
   createPotentialGrid,
@@ -640,7 +641,7 @@ export function renderElectrostaticsModule({ t }) {
   header.append(title, headerInfo);
   sidebar.append(controls);
   layout.append(sidebar, board);
-  content.append(header, layout);
+  content.append(header, layout, createPackageCredit(t));
   page.append(content);
 
   return page;

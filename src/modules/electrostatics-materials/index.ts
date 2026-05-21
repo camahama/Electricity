@@ -1,3 +1,4 @@
+import { createPackageCredit } from "../../components/packageCredit.js";
 import { createFieldLineOverlayFromPotentialGrid } from "../electrostatics/visualization/fieldLineOverlay.js";
 
 const GRID_SIZE = 750;
@@ -869,7 +870,7 @@ export function renderElectrostaticsMaterialsModule({ t }) {
   intro.append(title, introInfo);
   sidebar.append(intro, controls);
   layout.append(sidebar, board);
-  content.append(layout);
+  content.append(layout, createPackageCredit(t));
   page.append(content);
 
   return page;

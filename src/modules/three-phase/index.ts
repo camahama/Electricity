@@ -1,4 +1,5 @@
 import type { ModuleRenderContext } from "../../config/modules.js";
+import { createPackageCredit } from "../../components/packageCredit.js";
 import {
   angle,
   calculateBranchCurrents,
@@ -238,7 +239,7 @@ export function renderThreePhaseModule({ t, language = "en" }: ModuleRenderConte
   visualizationPanel.append(visualizationStage, currentStrip);
   mainLayout.append(leftColumn, visualizationPanel);
   layout.append(header, mainLayout);
-  content.append(layout, floatingTooltip, circuitModal.dialog);
+  content.append(layout, createPackageCredit(t), floatingTooltip, circuitModal.dialog);
   page.append(content);
   update();
 

@@ -1,4 +1,5 @@
 import type { ModuleRenderContext } from "../../config/modules.js";
+import { createPackageCredit } from "../../components/packageCredit.js";
 
 const SVG_WIDTH = 1040;
 const SVG_HEIGHT = 520;
@@ -422,7 +423,7 @@ export function renderPhasorDiagramModule({ t }: ModuleRenderContext): HTMLEleme
 
   stage.append(svg);
   layout.append(controls, stage);
-  content.append(header, layout);
+  content.append(header, layout, createPackageCredit(t));
   page.append(content);
   update();
 

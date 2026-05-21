@@ -1,4 +1,5 @@
 import type { ModuleRenderContext } from "../../config/modules.js";
+import { createPackageCredit } from "../../components/packageCredit.js";
 import {
   capacitorVoltageAt,
   computeRlcModel,
@@ -539,7 +540,7 @@ export function renderRlcCircuitModule({ t, language = "en" }: ModuleRenderConte
   display.append(scopeBox, phasorBox);
   stage.append(display);
   layout.append(controls, stage);
-  content.append(header, layout);
+  content.append(header, layout, createPackageCredit(t));
   page.append(content);
   update();
   return page;
